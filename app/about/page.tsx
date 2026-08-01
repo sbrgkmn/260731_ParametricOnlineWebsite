@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { siteConfig } from "../lib/site";
 
 export const metadata: Metadata = {
   title: "About Sabri Gokmen",
-  description: "The designer, researcher, and educator behind Parametric.Online.",
+  description:
+    "The computational designer, researcher, and educator behind Parametric Online.",
   alternates: { canonical: "/about" },
 };
 
@@ -12,25 +14,46 @@ export default function AboutPage() {
     <main>
       <section className="page-hero shell">
         <p className="eyebrow">About / Sabri Gokmen</p>
-        <h1>Research depth. Practical tools. Open teaching.</h1>
-        <p>Parametric.Online connects more than a decade of work in computational design, generative systems, digital fabrication, software development, and education.</p>
+        <h1>Research depth, open teaching, practical builds.</h1>
+        <p>
+          Parametric Online translates long-term work in computational design,
+          generative systems, artificial intelligence, and material fabrication
+          into tutorials and files designers can use.
+        </p>
       </section>
-      <section className="shell section about-layout">
-        <div className="about-statement">
+      <section className="section shell about-layout">
+        <div>
           <p className="eyebrow">Practice</p>
-          <h2>I build computational systems that stay legible after the demo.</h2>
+          <h2>
+            Computational systems should remain legible after the demonstration.
+          </h2>
         </div>
         <div className="about-body">
-          <p>Sabri Gokmen is a computational designer, researcher, and educator trained in architecture. His work spans parametric modeling, generative art, digital fabrication, AI-assisted design, and software development.</p>
-          <p>Parametric.Online is the practical side of that work: tested scripts, structured workflows, direct teaching, and a community where designers can compare methods without hiding the difficult parts.</p>
-          <p>The aim is simple—help architects, designers, and educators move from scattered experiments to systems they can understand, adapt, and use with confidence.</p>
-          <div className="button-row"><Link className="button button-primary" href="/tools">Explore the tools</Link><Link className="button button-secondary" href="/contact">Start a conversation</Link></div>
+          <p>
+            Sabri Gokmen is a computational designer, researcher, and educator
+            with more than fifteen years of experience across parametric
+            modeling, generative art, digital fabrication, and software
+            development.
+          </p>
+          <p>
+            Parametric Online is the creator-led learning side of that practice:
+            free videos, selected code, direct technical support, and a place to
+            compare working methods.
+          </p>
+          <div className="button-row">
+            <Link className="button button-primary" href="/learn">
+              Explore tutorials
+            </Link>
+            <a
+              className="button button-secondary"
+              href={siteConfig.portfolioUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View portfolio ↗
+            </a>
+          </div>
         </div>
-      </section>
-      <section className="shell principle-grid section">
-        <article><span>01</span><h3>Legibility first</h3><p>Definitions should explain themselves through naming, grouping, and exposed logic.</p></article>
-        <article><span>02</span><h3>Practical rigor</h3><p>A tool earns its place by surviving project constraints, handoff, and reuse.</p></article>
-        <article><span>03</span><h3>Teach the system</h3><p>Good instruction reveals decisions and tradeoffs—not only a sequence of clicks.</p></article>
       </section>
     </main>
   );
