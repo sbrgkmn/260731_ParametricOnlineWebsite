@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "../lib/site";
 
 export const metadata: Metadata = {
-  title: "Expert Help",
+  title: "Work Together",
   description:
     "Book a focused computational-design working session or submit a professional consultancy inquiry.",
   alternates: { canonical: "/expert-help" },
@@ -12,8 +12,8 @@ export default function ExpertHelpPage() {
   return (
     <main>
       <section className="page-hero shell">
-        <p className="eyebrow">Expert help / Two clear formats</p>
-        <h1>Get unstuck—or build the larger system together.</h1>
+        <p className="eyebrow">Work Together / Two formats</p>
+        <h1>Book a 1:1 or start a consultancy.</h1>
         <p>
           Choose a focused one-to-one working session for an immediate technical
           problem, or a consultancy conversation for a larger professional

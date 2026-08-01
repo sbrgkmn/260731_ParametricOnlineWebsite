@@ -9,9 +9,7 @@ const modes = [
   { id: "reaction", label: "Reaction-diffusion" },
   { id: "tiles", label: "Parametric tiles" },
   { id: "network", label: "Proximity network" },
-  { id: "recursive", label: "Recursive growth" },
   { id: "radiolaria", label: "Radiolaria Voronoi mesh" },
-  { id: "fractal", label: "Fractal basin" },
 ] as const;
 
 type ModeId = (typeof modes)[number]["id"];
@@ -85,18 +83,6 @@ type ReactionState = {
   context: CanvasRenderingContext2D;
 };
 
-type FractalState = {
-  width: number;
-  height: number;
-  canvas: HTMLCanvasElement;
-  context: CanvasRenderingContext2D;
-  parameterX: number;
-  parameterY: number;
-  targetX: number;
-  targetY: number;
-  lastRender: number;
-};
-
 type SimulationState = {
   width: number;
   height: number;
@@ -119,18 +105,16 @@ type SimulationState = {
   lastCellStep: number;
   tileSeeds: InteractionSeed[];
   growthSeeds: InteractionSeed[];
-  fractalSeeds: InteractionSeed[];
   reaction: ReactionState | null;
-  fractal: FractalState | null;
 };
 
 let INK = "#171717";
-let ACCENT = "#ff5c35";
-let FIELD_WARM = "#f2ad2e";
+let ACCENT = "#d84a24";
+let FIELD_WARM = "#b77900";
 let PAPER = "#fbfbf8";
 let INK_RGB: [number, number, number] = [23, 23, 23];
-let ACCENT_RGB: [number, number, number] = [255, 92, 53];
-let FIELD_WARM_RGB: [number, number, number] = [242, 173, 46];
+let ACCENT_RGB: [number, number, number] = [216, 74, 36];
+let FIELD_WARM_RGB: [number, number, number] = [183, 121, 0];
 let PAPER_RGB: [number, number, number] = [251, 251, 248];
 
 function hexToRgb(
@@ -280,28 +264,6 @@ function addMeshCells(state: SimulationState, x: number, y: number, count = 7) {
   state.lastMeshUpdate = 0;
 }
 
-function createFractal(width: number, height: number): FractalState {
-  const fractalWidth = Math.max(190, Math.min(380, Math.floor(width / 3)));
-  const fractalHeight = Math.max(110, Math.min(230, Math.floor(height / 3)));
-  const canvas = document.createElement("canvas");
-  canvas.width = fractalWidth;
-  canvas.height = fractalHeight;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Unable to create fractal canvas");
-
-  return {
-    width: fractalWidth,
-    height: fractalHeight,
-    canvas,
-    context,
-    parameterX: -0.745,
-    parameterY: 0.113,
-    targetX: -0.745,
-    targetY: 0.113,
-    lastRender: 0,
-  };
-}
-
 function createVenation(width: number, height: number) {
   const nodes: VenationNode[] = [];
   const rootCount = width < 720 ? 6 : 12;
@@ -439,7 +401,7 @@ function createSimulation(
   const cellRows = Math.max(42, Math.min(100, Math.floor(height / 8)));
   const cells = new Uint8Array(cellColumns * cellRows);
   cells.forEach((_, index) => {
-    cells[index] = Math.random() > 0.77 ? 1 : 0;
+    cells[index] = Math.floor(Math.random() * 6);
   });
 
   const venation = createVenation(width, height);
@@ -471,10 +433,8 @@ function createSimulation(
     cellRows,
     lastCellStep: 0,
     tileSeeds: [],
-    growthSeeds: [],
-    fractalSeeds: [],
+    growthSeeds: createRadialGrowthSeeds(width, height),
     reaction: mode === "reaction" ? createReaction(width, height) : null,
-    fractal: mode === "fractal" ? createFractal(width, height) : null,
   };
 }
 
@@ -493,6 +453,21 @@ function addFlockAgents(
     boid.y = clamp(y + Math.sin(angle) * radius, 12, state.height - 12);
     state.boids.push(boid);
   }
+}
+
+function createRadialGrowthSeeds(width: number, height: number) {
+  const seeds: InteractionSeed[] = [];
+  const count = width < 720 ? 1 : 2;
+  for (let index = 0; index < count; index += 1) {
+    seeds.push({
+      x: width * ((index + 1) / (count + 1)),
+      y: height * (0.35 + Math.random() * 0.3),
+      born: performance.now() - 700 - Math.random() * 900,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+
+  return seeds;
 }
 
 function addInteractionSeeds(
@@ -518,21 +493,32 @@ function addInteractionSeeds(
   }
 }
 
+function addLSystemSeed(
+  state: SimulationState,
+  x: number,
+  y: number,
+) {
+  if (state.growthSeeds.length >= 18) return;
+  state.growthSeeds.push({
+    x: clamp(x, 8, state.width - 8),
+    y: clamp(y, 8, state.height - 8),
+    born: performance.now(),
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+
 function seedCellularBurst(state: SimulationState, x: number, y: number) {
   const centerX = Math.floor((x / state.width) * state.cellColumns);
   const centerY = Math.floor((y / state.height) * state.cellRows);
-  const radius = 8;
+  const radius = 12;
   for (let offsetY = -radius; offsetY <= radius; offsetY += 1) {
     for (let offsetX = -radius; offsetX <= radius; offsetX += 1) {
-      if (
-        offsetX * offsetX + offsetY * offsetY > radius * radius ||
-        Math.random() < 0.22
-      ) {
-        continue;
-      }
+      const distance = Math.hypot(offsetX, offsetY);
+      if (distance > radius) continue;
       const cellX = (centerX + offsetX + state.cellColumns) % state.cellColumns;
       const cellY = (centerY + offsetY + state.cellRows) % state.cellRows;
-      state.cells[cellY * state.cellColumns + cellX] = 1;
+      state.cells[cellY * state.cellColumns + cellX] =
+        Math.floor(distance * 0.72) % 6;
     }
   }
   state.lastCellStep = performance.now();
@@ -615,38 +601,45 @@ function drawCellular(
   pointer: PointerState,
   time: number,
 ) {
-  clear(context, state.width, state.height);
+  clear(context, state.width, state.height, 0.42);
   const { cellColumns: columns, cellRows: rows } = state;
 
   if (pointer.active) {
     const cellX = Math.floor((pointer.x / state.width) * columns);
     const cellY = Math.floor((pointer.y / state.height) * rows);
-    for (let y = -2; y <= 2; y += 1) {
-      for (let x = -2; x <= 2; x += 1) {
+    for (let y = -5; y <= 5; y += 1) {
+      for (let x = -5; x <= 5; x += 1) {
+        const distance = Math.hypot(x, y);
+        if (distance > 5) continue;
         const px = (cellX + x + columns) % columns;
         const py = (cellY + y + rows) % rows;
-        if (Math.random() > 0.35) state.cells[py * columns + px] = 1;
+        state.cells[py * columns + px] =
+          (Math.floor(distance + time * 0.008) + 3) % 6;
       }
     }
   }
 
-  if (time - state.lastCellStep > 260) {
+  if (time - state.lastCellStep > 82) {
     for (let y = 0; y < rows; y += 1) {
       for (let x = 0; x < columns; x += 1) {
-        let neighbors = 0;
+        const index = y * columns + x;
+        const current = state.cells[index];
+        const target = (current + 1) % 6;
+        let advancingNeighbors = 0;
         for (let oy = -1; oy <= 1; oy += 1) {
           for (let ox = -1; ox <= 1; ox += 1) {
             if (ox === 0 && oy === 0) continue;
             const nx = (x + ox + columns) % columns;
             const ny = (y + oy + rows) % rows;
-            neighbors += state.cells[ny * columns + nx];
+            if (state.cells[ny * columns + nx] === target) {
+              advancingNeighbors += 1;
+            }
           }
         }
-        const index = y * columns + x;
         state.nextCells[index] =
-          neighbors === 3 || (state.cells[index] === 1 && neighbors === 2)
-            ? 1
-            : 0;
+          advancingNeighbors >= 2 || Math.random() < 0.00035
+            ? target
+            : current;
       }
     }
     [state.cells, state.nextCells] = [state.nextCells, state.cells];
@@ -658,18 +651,44 @@ function drawCellular(
   for (let y = 0; y < rows; y += 1) {
     for (let x = 0; x < columns; x += 1) {
       const index = y * columns + x;
-      if (!state.cells[index]) continue;
+      const cellState = state.cells[index];
       const pointerDistance = pointer.active
-        ? Math.hypot(x * cellWidth - pointer.x, y * cellHeight - pointer.y)
-        : 999;
-      context.fillStyle = pointerDistance < 110 ? ACCENT : INK;
-      context.globalAlpha = pointerDistance < 110 ? 0.82 : 0.26;
+        ? Math.hypot(
+            (x + 0.5) * cellWidth - pointer.x,
+            (y + 0.5) * cellHeight - pointer.y,
+          )
+        : Number.POSITIVE_INFINITY;
+      const highlighted = pointerDistance < 135;
+      context.fillStyle =
+        cellState === 1 || cellState === 2
+          ? ACCENT
+          : cellState === 3
+            ? FIELD_WARM
+            : INK;
+      context.globalAlpha = highlighted
+        ? 0.42 + cellState * 0.085
+        : 0.09 + cellState * 0.055;
+      const pulse = 0.72 + 0.2 * Math.sin(time * 0.004 + cellState + x * 0.12);
+      const insetX = cellWidth * (1 - pulse) * 0.5;
+      const insetY = cellHeight * (1 - pulse) * 0.5;
       context.fillRect(
-        x * cellWidth + 0.6,
-        y * cellHeight + 0.6,
-        Math.max(1, cellWidth - 1.2),
-        Math.max(1, cellHeight - 1.2),
+        x * cellWidth + insetX,
+        y * cellHeight + insetY,
+        Math.max(1, cellWidth * pulse - 0.7),
+        Math.max(1, cellHeight * pulse - 0.7),
       );
+
+      if (cellState === 2 || cellState === 5) {
+        context.strokeStyle = cellState === 2 ? ACCENT : FIELD_WARM;
+        context.globalAlpha = highlighted ? 0.72 : 0.22;
+        context.lineWidth = 0.6;
+        context.strokeRect(
+          x * cellWidth + 1,
+          y * cellHeight + 1,
+          Math.max(1, cellWidth - 2),
+          Math.max(1, cellHeight - 2),
+        );
+      }
     }
   }
   context.globalAlpha = 1;
@@ -842,8 +861,8 @@ function drawVenation(
     const to = state.venationNodes[link.to];
     if (!from || !to) return;
     context.strokeStyle = index % 2 === 0 ? ACCENT : FIELD_WARM;
-    context.globalAlpha = 0.78;
-    context.lineWidth = 1.55;
+    context.globalAlpha = 0.88;
+    context.lineWidth = 2.8;
     context.beginPath();
     context.moveTo(from.x, from.y);
     context.lineTo(to.x, to.y);
@@ -857,8 +876,13 @@ function drawVenation(
     const highlightedRoot = node.root % 5 <= 1;
     context.strokeStyle =
       node.root % 5 === 0 ? ACCENT : node.root % 5 === 1 ? FIELD_WARM : INK;
-    context.globalAlpha = highlightedRoot ? 0.58 : 0.44;
-    context.lineWidth = highlightedRoot ? 1.15 : 0.8;
+    const primaryBranch = parent.parent === null;
+    context.globalAlpha = highlightedRoot ? 0.72 : 0.56;
+    context.lineWidth = primaryBranch
+      ? 3.1
+      : highlightedRoot
+        ? 2.05
+        : 1.35;
     context.beginPath();
     context.moveTo(parent.x, parent.y);
     context.lineTo(node.x, node.y);
@@ -876,7 +900,7 @@ function drawVenation(
   for (const node of state.venationNodes) {
     if (node.parent !== null) continue;
     context.beginPath();
-    context.arc(node.x, node.y, 2.3, 0, Math.PI * 2);
+    context.arc(node.x, node.y, 3.2, 0, Math.PI * 2);
     context.fill();
   }
   context.globalAlpha = 1;
@@ -1070,27 +1094,36 @@ function drawReaction(
     reaction.height,
   );
   for (let index = 0; index < reaction.a.length; index += 1) {
-    const intensity = Math.pow(
-      clamp(1 - Math.abs(reaction.b[index] - 0.34) * 6.5),
-      1.7,
+    const chemical = reaction.b[index];
+    const ridge = Math.pow(clamp(1 - Math.abs(chemical - 0.34) * 6.5), 1.55);
+    const accentBand = Math.pow(
+      clamp(1 - Math.abs(chemical - 0.2) * 6.2),
+      1.15,
     );
-    const accent = clamp((reaction.b[index] - 0.4) * 8);
-    const warm = clamp((reaction.b[index] - 0.62) * 8);
-    const mark = intensity * 0.74;
+    const warmBand = Math.pow(
+      clamp(1 - Math.abs(chemical - 0.48) * 5.4),
+      1.2,
+    );
+    const deepBand = clamp((chemical - 0.58) * 5.5);
     for (let channel = 0; channel < 3; channel += 1) {
-      const monochrome =
-        PAPER_RGB[channel] + (INK_RGB[channel] - PAPER_RGB[channel]) * mark;
+      const outlined =
+        PAPER_RGB[channel] +
+        (INK_RGB[channel] - PAPER_RGB[channel]) * ridge * 0.54;
       const accented =
-        monochrome + (ACCENT_RGB[channel] - monochrome) * accent * 0.72;
+        outlined +
+        (ACCENT_RGB[channel] - outlined) * accentBand * 0.9;
+      const warmed =
+        accented +
+        (FIELD_WARM_RGB[channel] - accented) * warmBand * 0.88;
       image.data[index * 4 + channel] = Math.floor(
-        accented + (FIELD_WARM_RGB[channel] - accented) * warm * 0.62,
+        warmed + (INK_RGB[channel] - warmed) * deepBand * 0.48,
       );
     }
     image.data[index * 4 + 3] = 255;
   }
   reaction.context.putImageData(image, 0, 0);
   context.imageSmoothingEnabled = false;
-  context.globalAlpha = 0.62;
+  context.globalAlpha = 0.86;
   context.drawImage(reaction.canvas, 0, 0, state.width, state.height);
   context.globalAlpha = 1;
 }
@@ -1277,6 +1310,235 @@ function drawNetwork(
   context.globalAlpha = 1;
 }
 
+type ZipperVertex = { x: number; y: number };
+type ZipperTriangle = {
+  vertices: [number, number, number];
+  neighbors: number[];
+  x: number;
+  y: number;
+};
+type ZipperMesh = {
+  width: number;
+  height: number;
+  columns: number;
+  rows: number;
+  vertices: ZipperVertex[];
+  triangles: ZipperTriangle[];
+  edges: Array<[number, number]>;
+};
+
+let zipperMeshCache: ZipperMesh | null = null;
+
+function getZipperMesh(width: number, height: number) {
+  if (
+    zipperMeshCache &&
+    Math.abs(zipperMeshCache.width - width) < 1 &&
+    Math.abs(zipperMeshCache.height - height) < 1
+  ) {
+    return zipperMeshCache;
+  }
+
+  const targetSize = width < 720 ? 54 : 62;
+  const columns = Math.max(8, Math.ceil(width / targetSize));
+  let rows = Math.max(7, Math.ceil(height / (targetSize * 0.82)));
+  if (rows % 2 === 0) rows += 1;
+  const cellWidth = width / columns;
+  const cellHeight = height / rows;
+  const vertices: ZipperVertex[] = [];
+
+  for (let row = 0; row <= rows; row += 1) {
+    for (let column = 0; column <= columns; column += 1) {
+      vertices.push({
+        x: column * cellWidth,
+        y: row * cellHeight,
+      });
+    }
+  }
+
+  const triangles: ZipperTriangle[] = [];
+  const addTriangle = (a: number, b: number, c: number) => {
+    const first = vertices[a];
+    const second = vertices[b];
+    const third = vertices[c];
+    triangles.push({
+      vertices: [a, b, c],
+      neighbors: [],
+      x: (first.x + second.x + third.x) / 3,
+      y: (first.y + second.y + third.y) / 3,
+    });
+  };
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      const topLeft = row * (columns + 1) + column;
+      const topRight = topLeft + 1;
+      const bottomLeft = topLeft + columns + 1;
+      const bottomRight = bottomLeft + 1;
+      if ((row + column) % 2 === 0) {
+        addTriangle(topLeft, bottomLeft, bottomRight);
+        addTriangle(topLeft, bottomRight, topRight);
+      } else {
+        addTriangle(topLeft, bottomLeft, topRight);
+        addTriangle(topRight, bottomLeft, bottomRight);
+      }
+    }
+  }
+
+  const edgeOwners = new Map<string, number[]>();
+  const edgeVertices = new Map<string, [number, number]>();
+  triangles.forEach((triangle, triangleIndex) => {
+    const [a, b, c] = triangle.vertices;
+    for (const [first, second] of [
+      [a, b],
+      [b, c],
+      [c, a],
+    ] as Array<[number, number]>) {
+      const edge: [number, number] =
+        first < second ? [first, second] : [second, first];
+      const key = `${edge[0]}:${edge[1]}`;
+      edgeVertices.set(key, edge);
+      const owners = edgeOwners.get(key) ?? [];
+      owners.push(triangleIndex);
+      edgeOwners.set(key, owners);
+    }
+  });
+
+  edgeOwners.forEach((owners) => {
+    if (owners.length === 2) {
+      triangles[owners[0]].neighbors.push(owners[1]);
+      triangles[owners[1]].neighbors.push(owners[0]);
+    }
+  });
+
+  zipperMeshCache = {
+    width,
+    height,
+    columns,
+    rows,
+    vertices,
+    triangles,
+    edges: [...edgeVertices.values()],
+  };
+  return zipperMeshCache;
+}
+
+function buildLacedRing(mesh: ZipperMesh) {
+  const stride = mesh.columns + 1;
+  const ring = [0];
+
+  for (let row = 0; row <= mesh.rows; row += 1) {
+    if (row === 0) {
+      for (let column = 1; column <= mesh.columns; column += 1) {
+        ring.push(column);
+      }
+    } else if (row % 2 === 1) {
+      ring.push(row * stride + mesh.columns);
+      for (let column = mesh.columns - 1; column >= 1; column -= 1) {
+        ring.push(row * stride + column);
+      }
+    } else {
+      ring.push(row * stride + 1);
+      for (let column = 2; column <= mesh.columns; column += 1) {
+        ring.push(row * stride + column);
+      }
+    }
+  }
+
+  ring.push(mesh.rows * stride);
+  for (let row = mesh.rows - 1; row >= 0; row -= 1) {
+    ring.push(row * stride);
+  }
+
+  const edgeIndices = new Map<string, number>();
+  for (let index = 1; index < ring.length; index += 1) {
+    const first = ring[index - 1];
+    const second = ring[index];
+    const key = first < second ? `${first}:${second}` : `${second}:${first}`;
+    edgeIndices.set(key, index - 1);
+  }
+  return { ring, edgeIndices };
+}
+
+function nearestZipperTriangle(
+  mesh: ZipperMesh,
+  x: number,
+  y: number,
+) {
+  let nearest = 0;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+  mesh.triangles.forEach((triangle, index) => {
+    const distance = (triangle.x - x) ** 2 + (triangle.y - y) ** 2;
+    if (distance < nearestDistance) {
+      nearest = index;
+      nearestDistance = distance;
+    }
+  });
+  return nearest;
+}
+
+function buildZipperTraversal(
+  mesh: ZipperMesh,
+  start: number,
+  phase: number,
+) {
+  const traversal = [start];
+  const visited = new Set<number>(traversal);
+  let previousX = mesh.triangles[start].x - Math.cos(phase) * 20;
+  let previousY = mesh.triangles[start].y - Math.sin(phase) * 20;
+  let current = start;
+  let preferLeft = Math.sin(phase) >= 0;
+
+  while (traversal.length < mesh.triangles.length) {
+    const triangle = mesh.triangles[current];
+    const directionX = triangle.x - previousX;
+    const directionY = triangle.y - previousY;
+    const candidates = triangle.neighbors.filter(
+      (neighbor) => !visited.has(neighbor),
+    );
+    if (candidates.length === 0) break;
+
+    candidates.sort((first, second) => {
+      const a = mesh.triangles[first];
+      const b = mesh.triangles[second];
+      const crossA =
+        directionX * (a.y - triangle.y) -
+        directionY * (a.x - triangle.x);
+      const crossB =
+        directionX * (b.y - triangle.y) -
+        directionY * (b.x - triangle.x);
+      const sideA = (preferLeft ? crossA : -crossA) >= 0 ? 1 : 0;
+      const sideB = (preferLeft ? crossB : -crossB) >= 0 ? 1 : 0;
+      if (sideA !== sideB) return sideB - sideA;
+      const exitsA = a.neighbors.filter((neighbor) => !visited.has(neighbor)).length;
+      const exitsB = b.neighbors.filter((neighbor) => !visited.has(neighbor)).length;
+      return exitsA - exitsB;
+    });
+
+    previousX = triangle.x;
+    previousY = triangle.y;
+    current = candidates[0];
+    traversal.push(current);
+    visited.add(current);
+    preferLeft = !preferLeft;
+  }
+
+  return traversal;
+}
+
+function sharedEdgeMidpoint(
+  mesh: ZipperMesh,
+  firstTriangle: number,
+  secondTriangle: number,
+) {
+  const first = mesh.triangles[firstTriangle].vertices;
+  const second = new Set(mesh.triangles[secondTriangle].vertices);
+  const shared = first.filter((vertex) => second.has(vertex));
+  if (shared.length !== 2) return mesh.triangles[secondTriangle];
+  const a = mesh.vertices[shared[0]];
+  const b = mesh.vertices[shared[1]];
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
 function drawRecursive(
   context: CanvasRenderingContext2D,
   state: SimulationState,
@@ -1284,130 +1546,154 @@ function drawRecursive(
   time: number,
 ) {
   clear(context, state.width, state.height);
-  state.growthSeeds = state.growthSeeds.filter(
-    (seed) => time - seed.born < 12000,
-  );
-  const cycle = (time % 10000) / 10000;
-  const pointerAngle = pointer.active
-    ? (pointer.x / state.width - 0.5) * 0.45
-    : 0;
+  const mesh = getZipperMesh(state.width, state.height);
+  const { ring, edgeIndices } = buildLacedRing(mesh);
+  const ringEdgeCount = ring.length - 1;
+  context.lineCap = "round";
+  context.lineJoin = "round";
 
-  const branch = (
-    x: number,
-    y: number,
-    length: number,
-    angle: number,
-    depth: number,
-    phase: number,
-    growthCycle = cycle,
-    opacityScale = 1,
-  ) => {
-    if (depth <= 0) return;
-    const localGrowth = clamp(growthCycle * 7 - phase);
-    if (localGrowth <= 0) return;
-    const endX = x + Math.cos(angle) * length * localGrowth;
-    const endY = y + Math.sin(angle) * length * localGrowth;
-    context.strokeStyle = depth <= 2 ? ACCENT : INK;
-    context.globalAlpha = (0.2 + depth * 0.09) * opacityScale;
-    context.lineWidth = Math.max(0.55, depth * 0.42);
+  mesh.triangles.forEach((triangle) => {
+    const [a, b, c] = triangle.vertices;
+    const triangleEdges: Array<[number, number]> = [
+      [a, b],
+      [b, c],
+      [c, a],
+    ];
+    const triangleRingIndices = triangleEdges.flatMap(([first, second]) => {
+      const key = first < second ? `${first}:${second}` : `${second}:${first}`;
+      const ringIndex = edgeIndices.get(key);
+      return ringIndex === undefined ? [] : [ringIndex];
+    });
+    const triangleType = triangleRingIndices.length;
+    const ringIndex = triangleRingIndices[0] ?? 0;
+    const solid =
+      triangleType === 2 || (triangleType === 1 && ringIndex % 2 === 0);
+    if (!solid && triangleType !== 0) return;
+    const pointerDistance = pointer.active
+      ? Math.hypot(triangle.x - pointer.x, triangle.y - pointer.y)
+      : Number.POSITIVE_INFINITY;
+    context.fillStyle =
+      pointerDistance < 70
+        ? FIELD_WARM
+        : pointerDistance < 155
+          ? ACCENT
+          : triangleType === 2
+            ? FIELD_WARM
+            : triangleType === 0
+              ? ACCENT
+              : INK;
+    context.globalAlpha =
+      pointerDistance < 155
+        ? 0.28
+        : triangleType === 2
+          ? 0.2
+          : triangleType === 0
+            ? 0.035
+            : 0.12;
     context.beginPath();
-    context.moveTo(x, y);
-    context.lineTo(endX, endY);
+    triangle.vertices.forEach((vertexIndex, index) => {
+      const vertex = mesh.vertices[vertexIndex];
+      if (index === 0) context.moveTo(vertex.x, vertex.y);
+      else context.lineTo(vertex.x, vertex.y);
+    });
+    context.closePath();
+    context.fill();
+  });
+
+  for (const [firstIndex, secondIndex] of mesh.edges) {
+    const first = mesh.vertices[firstIndex];
+    const second = mesh.vertices[secondIndex];
+    const midpointX = (first.x + second.x) / 2;
+    const midpointY = (first.y + second.y) / 2;
+    const pointerDistance = pointer.active
+      ? Math.hypot(midpointX - pointer.x, midpointY - pointer.y)
+      : Number.POSITIVE_INFINITY;
+    context.strokeStyle =
+      pointerDistance < 70
+        ? FIELD_WARM
+        : pointerDistance < 155
+          ? ACCENT
+          : INK;
+    context.globalAlpha = pointerDistance < 155 ? 0.5 : 0.16;
+    context.lineWidth = pointerDistance < 70 ? 1.5 : 0.75;
+    context.beginPath();
+    context.moveTo(first.x, first.y);
+    context.lineTo(second.x, second.y);
     context.stroke();
-
-    if (depth <= 2 && localGrowth > 0.58) {
-      const leafGrowth = clamp((localGrowth - 0.58) / 0.42);
-      const leafCount = depth === 1 ? 4 : 2;
-      for (let leaf = 0; leaf < leafCount; leaf += 1) {
-        const leafAngle = angle + (leaf - (leafCount - 1) / 2) * 0.34;
-        const leafDistance = 3 + leaf * 1.8;
-        context.fillStyle =
-          leaf % 3 === 0 ? ACCENT : leaf % 3 === 1 ? FIELD_WARM : INK;
-        context.globalAlpha =
-          (leaf % 3 === 0 ? 0.8 : 0.5) * leafGrowth * opacityScale;
-        context.beginPath();
-        context.arc(
-          endX + Math.cos(leafAngle) * leafDistance,
-          endY + Math.sin(leafAngle) * leafDistance,
-          (depth === 1 ? 2.2 : 1.55) * leafGrowth,
-          0,
-          Math.PI * 2,
-        );
-        context.fill();
-      }
-    }
-
-    if (localGrowth < 0.98) return;
-    const spread = 0.34 + Math.sin(time * 0.00035 + depth) * 0.08;
-    branch(
-      endX,
-      endY,
-      length * 0.72,
-      angle - spread + pointerAngle * 0.25,
-      depth - 1,
-      phase + 0.82,
-      growthCycle,
-      opacityScale,
-    );
-    branch(
-      endX,
-      endY,
-      length * 0.69,
-      angle + spread + pointerAngle * 0.25,
-      depth - 1,
-      phase + 0.92,
-      growthCycle,
-      opacityScale,
-    );
-    if (depth % 2 === 0) {
-      branch(
-        endX,
-        endY,
-        length * 0.58,
-        angle + Math.sin(time * 0.0004) * 0.16,
-        depth - 2,
-        phase + 1.08,
-        growthCycle,
-        opacityScale,
-      );
-    }
-  };
-
-  const roots = state.width < 700 ? 2 : 4;
-  const branchDepth = state.width < 700 ? 8 : 9;
-  for (let root = 0; root < roots; root += 1) {
-    const x = state.width * ((root + 1) / (roots + 1));
-    branch(
-      x,
-      state.height * 1.02,
-      state.height * (state.width < 700 ? 0.17 : 0.145),
-      -Math.PI / 2 + pointerAngle,
-      branchDepth,
-      root * 0.24,
-    );
   }
 
-  state.growthSeeds.forEach((seed) => {
-    const life = clamp((time - seed.born) / 12000);
-    const growthCycle = clamp(life * 1.55);
-    const fade = clamp(1 - Math.max(0, life - 0.72) / 0.28);
-    const sprouts = state.width < 700 ? 2 : 3;
-    for (let sprout = 0; sprout < sprouts; sprout += 1) {
-      const angle =
-        seed.phase +
-        (sprout / sprouts) * Math.PI * 2 +
-        Math.sin(time * 0.0003 + seed.phase) * 0.12;
-      branch(
-        seed.x,
-        seed.y,
-        Math.min(state.width, state.height) * 0.075,
-        angle,
-        6,
-        sprout * 0.16,
-        growthCycle,
-        fade,
-      );
+  for (let edgeIndex = 0; edgeIndex < ringEdgeCount; edgeIndex += 1) {
+    const first = mesh.vertices[ring[edgeIndex]];
+    const second = mesh.vertices[ring[edgeIndex + 1]];
+    context.strokeStyle = edgeIndex % 2 === 0 ? ACCENT : INK;
+    context.globalAlpha = 0.5;
+    context.lineWidth = 1.8;
+    context.beginPath();
+    context.moveTo(first.x, first.y);
+    context.lineTo(second.x, second.y);
+    context.stroke();
+  }
+
+  state.growthSeeds.forEach((seed, seedIndex) => {
+    let startIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (let index = 0; index < ringEdgeCount; index += 1) {
+      const vertex = mesh.vertices[ring[index]];
+      const distance = (vertex.x - seed.x) ** 2 + (vertex.y - seed.y) ** 2;
+      if (distance < nearestDistance) {
+        startIndex = index;
+        nearestDistance = distance;
+      }
     }
+    const direction = Math.sin(seed.phase) >= 0 ? 1 : -1;
+    const visibleSteps = Math.min(
+      ringEdgeCount,
+      Math.max(1, Math.floor((time - seed.born + 100) / 16)),
+    );
+    const baseColor = seedIndex % 2 === 0 ? FIELD_WARM : ACCENT;
+
+    for (let step = 0; step < visibleSteps; step += 1) {
+      const edgeIndex =
+        (startIndex + direction * step + ringEdgeCount) % ringEdgeCount;
+      const nextIndex =
+        (edgeIndex + direction + ringEdgeCount) % ringEdgeCount;
+      const first = mesh.vertices[ring[edgeIndex]];
+      const second = mesh.vertices[ring[nextIndex]];
+      const pointerDistance = pointer.active
+        ? Math.hypot(
+            (first.x + second.x) / 2 - pointer.x,
+            (first.y + second.y) / 2 - pointer.y,
+          )
+        : Number.POSITIVE_INFINITY;
+      context.strokeStyle =
+        pointerDistance < 70
+          ? FIELD_WARM
+          : pointerDistance < 155
+            ? ACCENT
+            : baseColor;
+      context.globalAlpha = 0.38 + (step / visibleSteps) * 0.58;
+      context.lineWidth = 2.4 + (step / visibleSteps) * 1.5;
+      context.beginPath();
+      context.moveTo(first.x, first.y);
+      context.lineTo(second.x, second.y);
+      context.stroke();
+    }
+
+    const headIndex =
+      (startIndex + direction * (visibleSteps - 1) + ringEdgeCount) %
+      ringEdgeCount;
+    const head = mesh.vertices[ring[headIndex]];
+    context.fillStyle = baseColor;
+    context.globalAlpha = 0.92;
+    context.beginPath();
+    context.arc(
+      head.x,
+      head.y,
+      3.6 + Math.sin(time * 0.007 + seed.phase) * 1.2,
+      0,
+      Math.PI * 2,
+    );
+    context.fill();
   });
   context.globalAlpha = 1;
 }
@@ -1520,123 +1806,6 @@ function drawRadiolaria(
   context.globalAlpha = 1;
 }
 
-function drawFractal(
-  context: CanvasRenderingContext2D,
-  state: SimulationState,
-  pointer: PointerState,
-  time: number,
-) {
-  clear(context, state.width, state.height);
-  state.fractalSeeds = state.fractalSeeds.filter(
-    (seed) => time - seed.born < 7200,
-  );
-  if (!state.fractal) {
-    state.fractal = createFractal(state.width, state.height);
-  }
-  const fractal = state.fractal;
-  fractal.parameterX += (fractal.targetX - fractal.parameterX) * 0.018;
-  fractal.parameterY += (fractal.targetY - fractal.parameterY) * 0.018;
-
-  if (time - fractal.lastRender > 72) {
-    const image = fractal.context.createImageData(
-      fractal.width,
-      fractal.height,
-    );
-    const aspect = state.width / Math.max(state.height, 1);
-    const pointerX = pointer.active
-      ? (pointer.x / state.width - 0.5) * 0.045
-      : 0;
-    const pointerY = pointer.active
-      ? (pointer.y / state.height - 0.5) * 0.045
-      : 0;
-    const parameterX =
-      fractal.parameterX + pointerX + Math.sin(time * 0.00009) * 0.008;
-    const parameterY =
-      fractal.parameterY + pointerY + Math.cos(time * 0.00007) * 0.008;
-    const maximumIterations = 48;
-
-    for (let y = 0; y < fractal.height; y += 1) {
-      for (let x = 0; x < fractal.width; x += 1) {
-        let real = (x / fractal.width - 0.5) * 2.85 * aspect;
-        let imaginary = (y / fractal.height - 0.5) * 2.85;
-        let iteration = 0;
-        let magnitudeSquared = 0;
-
-        while (iteration < maximumIterations && magnitudeSquared <= 4) {
-          const nextReal = real * real - imaginary * imaginary + parameterX;
-          imaginary = 2 * real * imaginary + parameterY;
-          real = nextReal;
-          magnitudeSquared = real * real + imaginary * imaginary;
-          iteration += 1;
-        }
-
-        const escaped = iteration < maximumIterations;
-        const smoothIteration = escaped
-          ? iteration + 1 - Math.log2(Math.log2(Math.sqrt(magnitudeSquared)))
-          : maximumIterations;
-        const normalized = clamp(smoothIteration / maximumIterations);
-        const filament = 0.5 + Math.cos(smoothIteration * 2.15) * 0.5;
-        const intensity = escaped
-          ? clamp(Math.pow(normalized, 0.44) * (0.48 + filament * 0.68))
-          : 0.16;
-        const warmMix = 0.5 + Math.sin(smoothIteration * 0.47) * 0.5;
-        const pixelIndex = (y * fractal.width + x) * 4;
-
-        for (let channel = 0; channel < 3; channel += 1) {
-          const fractalColor =
-            ACCENT_RGB[channel] * (1 - warmMix) +
-            FIELD_WARM_RGB[channel] * warmMix;
-          const targetColor = escaped ? fractalColor : INK_RGB[channel];
-          const amount = escaped ? 0.08 + intensity * 0.78 : 0.2;
-          image.data[pixelIndex + channel] = Math.floor(
-            PAPER_RGB[channel] + (targetColor - PAPER_RGB[channel]) * amount,
-          );
-        }
-        image.data[pixelIndex + 3] = 255;
-      }
-    }
-
-    fractal.context.putImageData(image, 0, 0);
-    fractal.lastRender = time;
-  }
-
-  context.imageSmoothingEnabled = true;
-  context.globalAlpha = 0.88;
-  context.drawImage(fractal.canvas, 0, 0, state.width, state.height);
-
-  const orbitAspect = state.width / Math.max(state.height, 1);
-  state.fractalSeeds.forEach((seed, seedIndex) => {
-    const age = time - seed.born;
-    const life = clamp(1 - age / 7200);
-    const visibleIterations = Math.min(24, 3 + Math.floor(age / 105));
-    let real = (seed.x / state.width - 0.5) * 2.85 * orbitAspect;
-    let imaginary = (seed.y / state.height - 0.5) * 2.85;
-    context.strokeStyle = seedIndex % 2 === 0 ? ACCENT : FIELD_WARM;
-    context.fillStyle = context.strokeStyle;
-    context.globalAlpha = life * 0.84;
-    context.lineWidth = 1.2;
-    context.beginPath();
-    context.moveTo(seed.x, seed.y);
-
-    let lastX = seed.x;
-    let lastY = seed.y;
-    for (let iteration = 0; iteration < visibleIterations; iteration += 1) {
-      const nextReal = real * real - imaginary * imaginary + fractal.parameterX;
-      imaginary = 2 * real * imaginary + fractal.parameterY;
-      real = nextReal;
-      if (real * real + imaginary * imaginary > 18) break;
-      lastX = (real / (2.85 * orbitAspect) + 0.5) * state.width;
-      lastY = (imaginary / 2.85 + 0.5) * state.height;
-      context.lineTo(lastX, lastY);
-    }
-    context.stroke();
-    context.beginPath();
-    context.arc(lastX, lastY, 2.2, 0, Math.PI * 2);
-    context.fill();
-  });
-  context.globalAlpha = 1;
-}
-
 function drawMode(
   context: CanvasRenderingContext2D,
   state: SimulationState,
@@ -1664,22 +1833,16 @@ function drawMode(
     case "network":
       drawNetwork(context, state, pointer, time, delta);
       break;
-    case "recursive":
-      drawRecursive(context, state, pointer, time);
-      break;
     case "radiolaria":
       drawRadiolaria(context, state, pointer, time, delta);
-      break;
-    case "fractal":
-      drawFractal(context, state, pointer, time);
       break;
   }
 }
 
 export function GenerativeBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cycleTimeoutRef = useRef<number | null>(null);
   const [mode, setMode] = useState<ModeId>("network");
-  const [autoCycle, setAutoCycle] = useState(true);
 
   const advanceMode = useCallback(() => {
     setMode((currentMode) => {
@@ -1687,6 +1850,13 @@ export function GenerativeBackground() {
       return modes[(currentIndex + 1) % modes.length].id;
     });
   }, []);
+
+  const scheduleAdvance = useCallback(() => {
+    if (cycleTimeoutRef.current !== null) {
+      window.clearTimeout(cycleTimeoutRef.current);
+    }
+    cycleTimeoutRef.current = window.setTimeout(advanceMode, 8000);
+  }, [advanceMode]);
 
   useEffect(() => {
     const stored = Number(
@@ -1705,16 +1875,17 @@ export function GenerativeBackground() {
     const index = modes.findIndex((item) => item.id === mode);
     window.sessionStorage.setItem("parametric-background-mode", String(index));
 
-    if (
-      !autoCycle ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      scheduleAdvance();
     }
 
-    const interval = window.setInterval(advanceMode, 16000);
-    return () => window.clearInterval(interval);
-  }, [advanceMode, autoCycle, mode]);
+    return () => {
+      if (cycleTimeoutRef.current !== null) {
+        window.clearTimeout(cycleTimeoutRef.current);
+        cycleTimeoutRef.current = null;
+      }
+    };
+  }, [mode, scheduleAdvance]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1756,12 +1927,9 @@ export function GenerativeBackground() {
     };
 
     const injectPointer = (event: globalThis.PointerEvent) => {
-      const target = event.target;
-      if (target instanceof Element && target.closest(".generative-controls")) {
-        return;
-      }
       updatePointer(event);
       if (!pointer.active) return;
+      scheduleAdvance();
 
       if (mode === "cellular") {
         seedCellularBurst(simulation, pointer.x, pointer.y);
@@ -1792,45 +1960,8 @@ export function GenerativeBackground() {
         addNetworkAgents(simulation, pointer.x, pointer.y);
       }
 
-      if (mode === "recursive") {
-        addInteractionSeeds(
-          simulation.growthSeeds,
-          pointer.x,
-          pointer.y,
-          simulation.width,
-          simulation.height,
-          2,
-          18,
-          24,
-        );
-      }
-
       if (mode === "radiolaria") {
         addMeshCells(simulation, pointer.x, pointer.y);
-      }
-
-      if (mode === "fractal") {
-        if (!simulation.fractal) {
-          simulation.fractal = createFractal(
-            simulation.width,
-            simulation.height,
-          );
-        }
-        simulation.fractal.targetX =
-          -0.84 + (pointer.x / simulation.width) * 0.28;
-        simulation.fractal.targetY =
-          -0.22 + (pointer.y / simulation.height) * 0.44;
-        simulation.fractal.lastRender = 0;
-        addInteractionSeeds(
-          simulation.fractalSeeds,
-          pointer.x,
-          pointer.y,
-          simulation.width,
-          simulation.height,
-          4,
-          28,
-          18,
-        );
       }
 
       if (mode === "reaction") {
@@ -1856,7 +1987,6 @@ export function GenerativeBackground() {
 
     const updateTheme = () => {
       syncCanvasPalette();
-      if (simulation.fractal) simulation.fractal.lastRender = 0;
       clear(context, simulation.width, simulation.height);
     };
 
@@ -1883,10 +2013,10 @@ export function GenerativeBackground() {
       window.removeEventListener("parametric-theme-change", updateTheme);
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
     };
-  }, [mode]);
+  }, [mode, scheduleAdvance]);
 
   return (
-    <>
+    <div className="generative-stage">
       <div className="generative-background">
         <div className="generative-fallback" aria-hidden="true">
           <span />
@@ -1899,52 +2029,6 @@ export function GenerativeBackground() {
           aria-hidden="true"
         />
       </div>
-      <div className="generative-controls">
-        <label htmlFor="background-mode">Background system</label>
-        <div>
-          <select
-            id="background-mode"
-            value={mode}
-            onChange={(event) => setMode(event.target.value as ModeId)}
-          >
-            {modes.map((item) => (
-              <option value={item.id} key={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-          <button type="button" onClick={advanceMode}>
-            Next
-          </button>
-          <button
-            className="cycle-toggle"
-            type="button"
-            aria-pressed={autoCycle}
-            onClick={() => setAutoCycle((enabled) => !enabled)}
-          >
-            {autoCycle ? "Auto on" : "Auto off"}
-          </button>
-        </div>
-        <p className="generative-hint" aria-live="polite">
-          {mode === "cellular"
-            ? "Click the field to seed a new cell colony."
-            : mode === "venation"
-              ? "Click the field to add a root and growth resources."
-              : mode === "flock"
-                ? "Click the field to release more agents."
-                : mode === "reaction"
-                  ? "Click the field to seed new reaction strips."
-                  : mode === "tiles"
-                    ? "Click the field to send new pulses through the tiles."
-                    : mode === "network"
-                      ? "Click the field to add moving network nodes."
-                      : mode === "recursive"
-                        ? "Click the field to plant new recursive growth."
-                        : mode === "radiolaria"
-                          ? "Click the field to add cells to the Voronoi mesh."
-                          : "Click the field to seed and shift the fractal basin."}
-        </p>
-      </div>
-    </>
+    </div>
   );
 }

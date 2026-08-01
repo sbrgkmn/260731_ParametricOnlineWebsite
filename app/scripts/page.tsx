@@ -4,7 +4,7 @@ import { scriptProducts } from "../lib/content";
 import { siteConfig } from "../lib/site";
 
 export const metadata: Metadata = {
-  title: "Scripts and Workflow Files",
+  title: "Starter Kits and Working Files",
   description:
     "Verified downloadable scripts and workflow files connected to Parametric Online tutorials.",
   alternates: { canonical: "/scripts" },
@@ -14,11 +14,11 @@ export default function ScriptsPage() {
   return (
     <main>
       <section className="page-hero shell">
-        <p className="eyebrow">Scripts / Working files</p>
-        <h1>Download the code behind the workflow.</h1>
+        <p className="eyebrow">Starter Kits / Working files</p>
+        <h1>Start from a working package.</h1>
         <p>
-          Foundational files, tutorial scripts, and multi-step workflow kits.
-          Only resources with verified public download destinations are listed.
+          Download the definitions, scripts, and workflow files used in the
+          tutorials.
         </p>
       </section>
 

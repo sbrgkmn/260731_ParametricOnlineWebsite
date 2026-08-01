@@ -109,14 +109,14 @@ export default async function WorkflowPage({ params }: PageProps) {
         <div>
           <p className="eyebrow">Questions</p>
           <h2>Compare methods with the community.</h2>
-          {siteConfig.discordUrl ? (
+          {siteConfig.discourseUrl ? (
             <a
               className="text-link"
-              href={siteConfig.discordUrl}
+              href={siteConfig.discourseUrl}
               target="_blank"
               rel="noreferrer"
             >
-              Discuss on Discord ↗
+              Discuss on Discourse ↗
             </a>
           ) : (
             <Link className="text-link" href="/community">

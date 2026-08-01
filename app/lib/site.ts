@@ -7,13 +7,14 @@ export const siteConfig = {
   name: "Parametric Online",
   shortName: "P / O",
   origin: process.env.NEXT_PUBLIC_SITE_URL ?? "https://parametric.online",
-  accent: process.env.NEXT_PUBLIC_ACCENT_COLOR ?? "#315cff",
+  accent: process.env.NEXT_PUBLIC_ACCENT_COLOR ?? "#c7431d",
   youtubeUrl:
     process.env.NEXT_PUBLIC_YOUTUBE_URL ??
     "https://www.youtube.com/channel/UCHGjWx-r-g_scgX-kIQc5sw",
   portfolioUrl:
     process.env.NEXT_PUBLIC_PORTFOLIO_URL ?? "https://www.sabrigokmen.com",
-  discordUrl: optionalUrl(process.env.NEXT_PUBLIC_DISCORD_URL),
+  discordUrl:
+    process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.gg/XdKRyBajp",
   bookingUrl: optionalUrl(process.env.NEXT_PUBLIC_BOOKING_URL),
   consultancyUrl: optionalUrl(process.env.NEXT_PUBLIC_CONSULTANCY_URL),
   supportUrl: optionalUrl(process.env.NEXT_PUBLIC_SUPPORT_URL),
@@ -21,9 +22,12 @@ export const siteConfig = {
 };
 
 export const navItems = [
-  { href: "/learn", label: "Learn" },
-  { href: "/scripts", label: "Scripts" },
-  { href: "/community", label: "Community" },
-  { href: "/expert-help", label: "Expert Help" },
-  { href: "/about", label: "About" },
+  { href: siteConfig.youtubeUrl, label: "Learn", external: true },
+  { href: "/scripts", label: "Starter Kits", external: false },
+  {
+    href: siteConfig.discordUrl,
+    label: "Community",
+    external: true,
+  },
+  { href: "/expert-help", label: "Work Together", external: false },
 ] as const;

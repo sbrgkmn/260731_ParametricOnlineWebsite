@@ -76,14 +76,14 @@ export default async function TutorialPage({ params }: PageProps) {
                 Download Code ↗
               </a>
             )}
-            {siteConfig.discordUrl && (
+            {siteConfig.discourseUrl && (
               <a
                 className="text-link"
-                href={siteConfig.discordUrl}
+                href={siteConfig.discourseUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                Discuss on Discord ↗
+                Discuss on Discourse ↗
               </a>
             )}
             <Link className="text-link" href="/expert-help">

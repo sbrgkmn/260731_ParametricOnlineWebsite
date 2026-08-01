@@ -22,20 +22,17 @@ test("server-renders the finished home page", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Learn computational design by building/);
-  assert.match(html, /Explore Workflows/);
-  assert.match(html, /15K\+ YouTube subscribers/);
-  assert.match(html, /Parametric Design/);
-  assert.match(html, /Creative Scripting/);
-  assert.match(html, /Generative AI/);
-  assert.match(html, /Digital Fabrication/);
-  assert.match(html, /Background system/);
-  assert.match(html, /Cellular automata/);
-  assert.match(html, /Reaction-diffusion/);
-  assert.match(html, /Radiolaria Voronoi mesh/);
-  assert.match(html, /Fractal basin/);
-  assert.match(html, /Auto on/);
+  assert.match(html, /Learn on YouTube/);
+  assert.match(html, /Starter Kits/);
+  assert.match(html, /Work Together/);
+  assert.match(html, /https:\/\/discord\.gg\/XdKRyBajp/);
+  assert.match(html, /Four ways in/);
+  assert.doesNotMatch(html, /15K\+ YouTube subscribers/);
+  assert.doesNotMatch(html, /Choose a system|Configure \+|Auto on/);
   assert.match(html, /Switch to dark theme/);
   assert.match(html, /generative-stage/);
+  assert.doesNotMatch(html, /generative-control-dock/);
+  assert.doesNotMatch(html, /Workflow streams|Featured tutorials/);
   assert.doesNotMatch(html, /Background simulation/);
   assert.doesNotMatch(
     html,
@@ -72,7 +69,7 @@ test("server-renders a tutorial detail page with privacy-enhanced video", async 
   assert.match(html, /Watch Free/);
 });
 
-test("unverified community and booking destinations stay disabled", async () => {
+test("community links to Discord while booking destinations stay disabled", async () => {
   const [communityResponse, expertResponse] = await Promise.all([
     render("/community"),
     render("/expert-help"),
@@ -81,8 +78,8 @@ test("unverified community and booking destinations stay disabled", async () => 
     communityResponse.text(),
     expertResponse.text(),
   ]);
-  assert.match(communityHtml, /Discord invite unavailable/);
-  assert.doesNotMatch(communityHtml, /discord\.gg/);
+  assert.match(communityHtml, /Join the discussion on Discord/);
+  assert.match(communityHtml, /https:\/\/discord\.gg\/XdKRyBajp/);
   assert.match(expertHtml, /Booking link unavailable/);
   assert.match(expertHtml, /Inquiry submission is currently unavailable/);
   assert.doesNotMatch(expertHtml, /calendly\.com/);
@@ -96,13 +93,14 @@ test("responsive and reduced-motion fallbacks remain defined", async () => {
   assert.match(css, /@media \(max-width: 720px\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /--paper: #fbfbf8/);
-  assert.match(css, /--field-accent: #ff5c35/);
-  assert.match(css, /--field-warm: #f2ad2e/);
+  assert.match(css, /--field-accent: #d84a24/);
+  assert.match(css, /--field-warm: #b77900/);
   assert.match(css, /:root\[data-theme="dark"\]/);
   assert.match(
     css,
     /\.generative-background\s*\{[^}]*inset: 0;[^}]*width: 100%;/,
   );
+  assert.match(css, /\.generative-stage\s*\{[^}]*border-block: 1px solid var\(--ink\);/);
   assert.match(css, /\.generative-canvas\s*\{\s*display: none;/);
   assert.match(css, /\.generative-fallback\s*\{\s*z-index: 0;/);
 });

@@ -13,11 +13,22 @@ export function SiteFooter() {
         </div>
         <div className="footer-links">
           <p className="eyebrow">Explore</p>
-          {navItems.map((item) => (
-            <Link href={item.href} key={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.external ? (
+              <a
+                href={item.href}
+                key={item.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {item.label} ↗
+              </a>
+            ) : (
+              <Link href={item.href} key={item.href}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </div>
         <div className="footer-links">
           <p className="eyebrow">Elsewhere</p>

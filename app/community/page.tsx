@@ -19,20 +19,14 @@ export default function CommunityPage() {
           Ask workflow questions, share experiments and follow new Parametric
           Online tutorials and tools.
         </p>
-        {siteConfig.discordUrl ? (
-          <a
-            className="button button-primary"
-            href={siteConfig.discordUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Join Discord ↗
-          </a>
-        ) : (
-          <span className="button button-disabled" aria-disabled="true">
-            Discord invite unavailable
-          </span>
-        )}
+        <a
+          className="button button-primary"
+          href={siteConfig.discordUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Join the discussion on Discord ↗
+        </a>
       </section>
 
       <section className="section shell community-principles">
