@@ -7,31 +7,30 @@ export function SiteFooter() {
       <div className="shell footer-grid">
         <div>
           <Link className="wordmark footer-mark" href="/">
-            PARAMETRIC<span>.</span>ONLINE
+            PARAMETRIC <span>/</span> ONLINE
           </Link>
-          <p>Practical systems for computational design.</p>
+          <p>Learn computational design by building.</p>
         </div>
         <div className="footer-links">
-          <p className="eyebrow">Navigate</p>
+          <p className="eyebrow">Explore</p>
           {navItems.map((item) => (
             <Link href={item.href} key={item.href}>
               {item.label}
             </Link>
           ))}
-          <Link href="/contact">Contact</Link>
         </div>
         <div className="footer-links">
           <p className="eyebrow">Elsewhere</p>
           <a href={siteConfig.youtubeUrl} target="_blank" rel="noreferrer">
             YouTube ↗
           </a>
-          <a href={siteConfig.skoolUrl} target="_blank" rel="noreferrer">
-            Parametric Lab ↗
+          <a href={siteConfig.portfolioUrl} target="_blank" rel="noreferrer">
+            Sabri Gokmen ↗
           </a>
         </div>
       </div>
       <div className="shell footer-base">
-        <span>© {new Date().getFullYear()} Parametric.Online</span>
+        <span>© {new Date().getFullYear()} Parametric Online</span>
         <div>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
@@ -41,4 +40,3 @@ export function SiteFooter() {
     </footer>
   );
 }
-

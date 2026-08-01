@@ -10,6 +10,11 @@ const revealSelector = [
   ".product-card",
   ".lesson-card",
   ".category-card",
+  ".tutorial-card",
+  ".script-card",
+  ".stream-card",
+  ".pathway-strip a",
+  ".community-principles article",
   ".session-card",
   ".benefit-grid article",
   ".principle-grid article",
@@ -39,7 +44,8 @@ export function MotionController() {
       root.style.setProperty("--scroll-progress", `${progress * 100}%`);
     };
     const onScroll = () => {
-      if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateScrollProgress);
+      if (!scrollFrame)
+        scrollFrame = window.requestAnimationFrame(updateScrollProgress);
     };
 
     updateScrollProgress();
@@ -92,4 +98,3 @@ export function MotionController() {
 
   return null;
 }
-
