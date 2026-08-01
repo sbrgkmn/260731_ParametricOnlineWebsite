@@ -1,9 +1,39 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Privacy Policy", alternates: { canonical: "/privacy" } };
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (
-    <main><section className="legal-page shell"><p className="eyebrow">Policy placeholder / Review required</p><h1>Privacy policy</h1><p className="legal-notice">This US-focused privacy policy is a working placeholder and must be reviewed by qualified counsel before launch.</p><h2>Information collected</h2><p>The website is intended to collect only information visitors choose to provide, such as an email address for newsletters or details submitted when contacting or booking a session.</p><h2>Hosted services</h2><p>Checkout and digital delivery are handled by Lemon Squeezy, bookings by Calendly, community participation by Skool, and newsletter signup by the configured email provider. Their own privacy policies govern information processed on those services.</p><h2>Analytics and cookies</h2><p>No nonessential analytics or advertising cookies should be enabled until a consent approach and vendor disclosures have been reviewed.</p><h2>Contact</h2><p>A business contact address will be added before launch. Personal residential contact information will not be published.</p><p className="policy-date">Placeholder updated: July 31, 2026</p></section></main>
+    <main>
+      <section className="legal-page shell">
+        <p className="eyebrow">Site information</p>
+        <h1>Privacy policy</h1>
+        <p>
+          Parametric Online does not currently create visitor accounts, process
+          payments, or run an email newsletter on this website.
+        </p>
+        <h2>Information you provide</h2>
+        <p>
+          The expert-help forms are disabled until a verified submission
+          destination is configured, so the current site does not transmit the
+          information entered into those fields.
+        </p>
+        <h2>Third-party services</h2>
+        <p>
+          Tutorial pages use YouTube&apos;s privacy-enhanced embed domain.
+          Opening a YouTube video, Google Drive download, or portfolio link
+          takes you to that provider, whose own privacy policy applies.
+        </p>
+        <h2>Analytics and cookies</h2>
+        <p>
+          The current site does not intentionally enable advertising or
+          nonessential analytics cookies.
+        </p>
+        <p className="policy-date">Updated: August 1, 2026</p>
+      </section>
+    </main>
   );
 }
