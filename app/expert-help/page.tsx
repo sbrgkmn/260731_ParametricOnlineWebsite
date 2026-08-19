@@ -30,11 +30,6 @@ export default function ExpertHelpPage() {
             or fabrication question. The session stays fixed in scope and
             focused on live work.
           </p>
-          <ul className="plain-list">
-            <li>Share context before the call</li>
-            <li>Work directly on the difficult part</li>
-            <li>Leave with a clear next step</li>
-          </ul>
           {siteConfig.bookingUrl ? (
             <a
               className="button button-primary"

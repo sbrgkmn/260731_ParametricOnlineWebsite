@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const modes = [
   { id: "cellular", label: "Cellular automata" },
-  { id: "venation", label: "Leaf venation" },
   { id: "flock", label: "Flock simulation" },
   { id: "reaction", label: "Reaction-diffusion" },
   { id: "tiles", label: "Parametric tiles" },
@@ -27,23 +26,6 @@ type Particle = {
   vy: number;
   phase: number;
   size: number;
-};
-
-type VenationNode = {
-  x: number;
-  y: number;
-  parent: number | null;
-  root: number;
-};
-
-type VenationLink = {
-  from: number;
-  to: number;
-};
-
-type AuxinSource = {
-  x: number;
-  y: number;
 };
 
 type MeshPoint = {
@@ -91,11 +73,6 @@ type SimulationState = {
   meshPoints: MeshPoint[];
   meshCells: MeshCell[];
   lastMeshUpdate: number;
-  venationNodes: VenationNode[];
-  venationLinks: VenationLink[];
-  auxinSources: AuxinSource[];
-  lastVenationStep: number;
-  venationStartedAt: number;
   lastNetworkSpawn: number;
   lastFlockSpawn: number;
   cells: Uint8Array;
@@ -109,12 +86,12 @@ type SimulationState = {
 };
 
 let INK = "#171717";
-let ACCENT = "#d84a24";
-let FIELD_WARM = "#b77900";
+let ACCENT = "#e11d48";
+let FIELD_WARM = "#ff4d6d";
 let PAPER = "#fbfbf8";
 let INK_RGB: [number, number, number] = [23, 23, 23];
-let ACCENT_RGB: [number, number, number] = [216, 74, 36];
-let FIELD_WARM_RGB: [number, number, number] = [183, 121, 0];
+let ACCENT_RGB: [number, number, number] = [225, 29, 72];
+let FIELD_WARM_RGB: [number, number, number] = [255, 77, 109];
 let PAPER_RGB: [number, number, number] = [251, 251, 248];
 
 function hexToRgb(
@@ -264,61 +241,6 @@ function addMeshCells(state: SimulationState, x: number, y: number, count = 7) {
   state.lastMeshUpdate = 0;
 }
 
-function createVenation(width: number, height: number) {
-  const nodes: VenationNode[] = [];
-  const rootCount = width < 720 ? 6 : 12;
-  const minimumRootDistance = Math.min(width, height) * 0.15;
-  let rootAttempts = 0;
-
-  while (nodes.length < rootCount && rootAttempts < rootCount * 80) {
-    rootAttempts += 1;
-    const candidate = {
-      x: width * 0.08 + Math.random() * width * 0.84,
-      y: height * 0.1 + Math.random() * height * 0.8,
-    };
-    const distributed = nodes.every(
-      (node) =>
-        Math.hypot(node.x - candidate.x, node.y - candidate.y) >=
-        minimumRootDistance,
-    );
-    if (!distributed) continue;
-    nodes.push({
-      ...candidate,
-      parent: null,
-      root: nodes.length,
-    });
-  }
-
-  const sources: AuxinSource[] = [];
-  const target = Math.min(
-    330,
-    Math.max(180, Math.floor((width * height) / 3400)),
-  );
-  const birthDistance = Math.max(
-    10,
-    Math.min(17, Math.min(width, height) / 50),
-  );
-  let attempts = 0;
-  while (sources.length < target && attempts < target * 45) {
-    attempts += 1;
-    const candidate = {
-      x: width * 0.035 + Math.random() * width * 0.93,
-      y: height * 0.055 + Math.random() * height * 0.89,
-    };
-    if (
-      sources.every(
-        (source) =>
-          Math.hypot(source.x - candidate.x, source.y - candidate.y) >=
-          birthDistance,
-      )
-    ) {
-      sources.push(candidate);
-    }
-  }
-
-  return { nodes, sources };
-}
-
 function createReaction(width: number, height: number): ReactionState {
   const reactionWidth = Math.max(140, Math.min(340, Math.floor(width / 3)));
   const reactionHeight = Math.max(90, Math.min(220, Math.floor(height / 3)));
@@ -404,8 +326,6 @@ function createSimulation(
     cells[index] = Math.floor(Math.random() * 6);
   });
 
-  const venation = createVenation(width, height);
-
   return {
     width,
     height,
@@ -420,11 +340,6 @@ function createSimulation(
     ),
     meshCells: [],
     lastMeshUpdate: 0,
-    venationNodes: venation.nodes,
-    venationLinks: [],
-    auxinSources: venation.sources,
-    lastVenationStep: 0,
-    venationStartedAt: 0,
     lastNetworkSpawn: 0,
     lastFlockSpawn: 0,
     cells,
@@ -522,30 +437,6 @@ function seedCellularBurst(state: SimulationState, x: number, y: number) {
     }
   }
   state.lastCellStep = performance.now();
-}
-
-function addVenationAgent(state: SimulationState, x: number, y: number) {
-  const rootIds = state.venationNodes.map((node) => node.root);
-  const nextRoot = rootIds.length === 0 ? 0 : Math.max(...rootIds) + 1;
-  if (nextRoot < 22) {
-    state.venationNodes.push({
-      x: clamp(x, 8, state.width - 8),
-      y: clamp(y, 8, state.height - 8),
-      parent: null,
-      root: nextRoot,
-    });
-  }
-
-  const additions = Math.min(42, 460 - state.auxinSources.length);
-  for (let index = 0; index < additions; index += 1) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 18 + Math.random() * 125;
-    state.auxinSources.push({
-      x: clamp(x + Math.cos(angle) * radius, 8, state.width - 8),
-      y: clamp(y + Math.sin(angle) * radius, 8, state.height - 8),
-    });
-  }
-  state.venationStartedAt = performance.now();
 }
 
 function addNetworkAgents(state: SimulationState, x: number, y: number) {
@@ -690,218 +581,6 @@ function drawCellular(
         );
       }
     }
-  }
-  context.globalAlpha = 1;
-}
-
-function drawVenation(
-  context: CanvasRenderingContext2D,
-  state: SimulationState,
-  pointer: PointerState,
-  time: number,
-) {
-  clear(context, state.width, state.height);
-  if (state.venationStartedAt === 0) state.venationStartedAt = time;
-
-  const restart =
-    time - state.venationStartedAt > 52000 || state.venationNodes.length > 1900;
-  if (restart) {
-    const venation = createVenation(state.width, state.height);
-    state.venationNodes = venation.nodes;
-    state.venationLinks = [];
-    state.auxinSources = venation.sources;
-    state.venationStartedAt = time;
-    state.lastVenationStep = time;
-  }
-
-  if (
-    pointer.active &&
-    Math.random() < 0.42 &&
-    state.auxinSources.length < 380
-  ) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 12 + Math.random() * 72;
-    state.auxinSources.push({
-      x: clamp(pointer.x + Math.cos(angle) * radius, 8, state.width - 8),
-      y: clamp(pointer.y + Math.sin(angle) * radius, 8, state.height - 8),
-    });
-  }
-
-  if (time - state.lastVenationStep > 46) {
-    const nodes = state.venationNodes;
-    const influenceRadiusSquared = Math.pow(
-      Math.min(220, Math.max(125, state.width * 0.18)),
-      2,
-    );
-    const killDistanceSquared = 9 * 9;
-    const stepDistance = Math.min(6.2, Math.max(4.2, state.width / 230));
-    const sourceBirthDistanceSquared = 13 * 13;
-    const veinBirthDistanceSquared = 15 * 15;
-
-    for (
-      let attempt = 0;
-      attempt < 10 && state.auxinSources.length < 340;
-      attempt += 1
-    ) {
-      const candidate = {
-        x: state.width * 0.035 + Math.random() * state.width * 0.93,
-        y: state.height * 0.055 + Math.random() * state.height * 0.89,
-      };
-      const clearOfSources = state.auxinSources.every((source) => {
-        const deltaX = source.x - candidate.x;
-        const deltaY = source.y - candidate.y;
-        return deltaX * deltaX + deltaY * deltaY >= sourceBirthDistanceSquared;
-      });
-      const clearOfVeins = nodes.every((node) => {
-        const deltaX = node.x - candidate.x;
-        const deltaY = node.y - candidate.y;
-        return deltaX * deltaX + deltaY * deltaY >= veinBirthDistanceSquared;
-      });
-      if (clearOfSources && clearOfVeins) state.auxinSources.push(candidate);
-    }
-
-    const sumX = new Float32Array(nodes.length);
-    const sumY = new Float32Array(nodes.length);
-    const counts = new Uint16Array(nodes.length);
-
-    for (const source of state.auxinSources) {
-      let nearest = -1;
-      let nearestDistanceSquared = influenceRadiusSquared;
-      for (let index = 0; index < nodes.length; index += 1) {
-        const deltaX = source.x - nodes[index].x;
-        const deltaY = source.y - nodes[index].y;
-        const distanceSquared = deltaX * deltaX + deltaY * deltaY;
-        if (distanceSquared < nearestDistanceSquared) {
-          nearest = index;
-          nearestDistanceSquared = distanceSquared;
-        }
-      }
-      if (nearest < 0) continue;
-      const distance = Math.max(Math.sqrt(nearestDistanceSquared), 0.001);
-      sumX[nearest] += (source.x - nodes[nearest].x) / distance;
-      sumY[nearest] += (source.y - nodes[nearest].y) / distance;
-      counts[nearest] += 1;
-    }
-
-    const children: VenationNode[] = [];
-    for (let index = 0; index < nodes.length; index += 1) {
-      if (counts[index] === 0) continue;
-      const directionLength = Math.hypot(sumX[index], sumY[index]);
-      if (directionLength < 0.001) continue;
-      const child = {
-        x: nodes[index].x + (sumX[index] / directionLength) * stepDistance,
-        y: nodes[index].y + (sumY[index] / directionLength) * stepDistance,
-        parent: index,
-        root: nodes[index].root,
-      };
-      if (
-        child.x < 5 ||
-        child.x > state.width - 5 ||
-        child.y < 5 ||
-        child.y > state.height - 5
-      ) {
-        continue;
-      }
-      let collisionIndex = -1;
-      let collisionDistanceSquared = Number.POSITIVE_INFINITY;
-      const connectionDistanceSquared = Math.pow(stepDistance * 1.8, 2);
-      nodes.forEach((node, nodeIndex) => {
-        if (nodeIndex === index) return;
-        const deltaX = node.x - child.x;
-        const deltaY = node.y - child.y;
-        const distanceSquared = deltaX * deltaX + deltaY * deltaY;
-        const collisionThreshold =
-          node.root === child.root
-            ? stepDistance * stepDistance * 0.42
-            : connectionDistanceSquared;
-        if (
-          distanceSquared < collisionThreshold &&
-          distanceSquared < collisionDistanceSquared
-        ) {
-          collisionIndex = nodeIndex;
-          collisionDistanceSquared = distanceSquared;
-        }
-      });
-      if (collisionIndex < 0) {
-        children.push(child);
-        continue;
-      }
-
-      if (
-        nodes[collisionIndex].root !== child.root &&
-        state.venationLinks.length < 54 &&
-        !state.venationLinks.some(
-          (link) =>
-            (link.from === index && link.to === collisionIndex) ||
-            (link.from === collisionIndex && link.to === index),
-        )
-      ) {
-        state.venationLinks.push({ from: index, to: collisionIndex });
-      }
-    }
-
-    const firstChildIndex = nodes.length;
-    nodes.push(...children);
-    state.auxinSources = state.auxinSources.filter((source) => {
-      for (let index = firstChildIndex; index < nodes.length; index += 1) {
-        const deltaX = source.x - nodes[index].x;
-        const deltaY = source.y - nodes[index].y;
-        if (deltaX * deltaX + deltaY * deltaY < killDistanceSquared)
-          return false;
-      }
-      return true;
-    });
-    state.lastVenationStep = time;
-  }
-
-  context.lineCap = "round";
-  context.lineJoin = "round";
-  state.venationLinks.forEach((link, index) => {
-    const from = state.venationNodes[link.from];
-    const to = state.venationNodes[link.to];
-    if (!from || !to) return;
-    context.strokeStyle = index % 2 === 0 ? ACCENT : FIELD_WARM;
-    context.globalAlpha = 0.88;
-    context.lineWidth = 2.8;
-    context.beginPath();
-    context.moveTo(from.x, from.y);
-    context.lineTo(to.x, to.y);
-    context.stroke();
-  });
-
-  for (let index = 0; index < state.venationNodes.length; index += 1) {
-    const node = state.venationNodes[index];
-    if (node.parent === null) continue;
-    const parent = state.venationNodes[node.parent];
-    const highlightedRoot = node.root % 5 <= 1;
-    context.strokeStyle =
-      node.root % 5 === 0 ? ACCENT : node.root % 5 === 1 ? FIELD_WARM : INK;
-    const primaryBranch = parent.parent === null;
-    context.globalAlpha = highlightedRoot ? 0.72 : 0.56;
-    context.lineWidth = primaryBranch
-      ? 3.1
-      : highlightedRoot
-        ? 2.05
-        : 1.35;
-    context.beginPath();
-    context.moveTo(parent.x, parent.y);
-    context.lineTo(node.x, node.y);
-    context.stroke();
-  }
-
-  context.fillStyle = INK;
-  context.globalAlpha = 0.12;
-  for (const source of state.auxinSources) {
-    context.fillRect(source.x, source.y, 1, 1);
-  }
-
-  context.fillStyle = ACCENT;
-  context.globalAlpha = 0.9;
-  for (const node of state.venationNodes) {
-    if (node.parent !== null) continue;
-    context.beginPath();
-    context.arc(node.x, node.y, 3.2, 0, Math.PI * 2);
-    context.fill();
   }
   context.globalAlpha = 1;
 }
@@ -1818,9 +1497,6 @@ function drawMode(
     case "cellular":
       drawCellular(context, state, pointer, time);
       break;
-    case "venation":
-      drawVenation(context, state, pointer, time);
-      break;
     case "flock":
       drawFlock(context, state, pointer, time, delta);
       break;
@@ -1933,10 +1609,6 @@ export function GenerativeBackground() {
 
       if (mode === "cellular") {
         seedCellularBurst(simulation, pointer.x, pointer.y);
-      }
-
-      if (mode === "venation") {
-        addVenationAgent(simulation, pointer.x, pointer.y);
       }
 
       if (mode === "flock") {

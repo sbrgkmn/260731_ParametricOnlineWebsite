@@ -6,8 +6,8 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="shell header-inner">
-        <Link className="wordmark" href="/" aria-label="Parametric Online home">
-          PARAMETRIC <span>/</span> ONLINE
+        <Link className="wordmark" href="/" aria-label="Parametric home">
+          PARAMETRIC
         </Link>
         <div className="header-actions">
           <nav className="desktop-nav" aria-label="Primary navigation">

@@ -30,6 +30,7 @@ test("server-renders the finished home page", async () => {
   assert.doesNotMatch(html, /15K\+ YouTube subscribers/);
   assert.doesNotMatch(html, /Choose a system|Configure \+|Auto on/);
   assert.match(html, /Switch to dark theme/);
+  assert.match(html, /aria-label="Parametric home"/);
   assert.match(html, /generative-stage/);
   assert.doesNotMatch(html, /generative-control-dock/);
   assert.doesNotMatch(html, /Workflow streams|Featured tutorials/);
@@ -83,18 +84,31 @@ test("community links to Discord while booking destinations stay disabled", asyn
   assert.match(expertHtml, /Booking link unavailable/);
   assert.match(expertHtml, /Inquiry submission is currently unavailable/);
   assert.doesNotMatch(expertHtml, /calendly\.com/);
+  assert.match(expertHtml, /Bring a Grasshopper definition/);
+  assert.doesNotMatch(expertHtml, /Share context before the call/);
+  assert.doesNotMatch(expertHtml, /Work directly on the difficult part/);
+  assert.doesNotMatch(expertHtml, /Leave with a clear next step/);
 });
 
 test("responsive and reduced-motion fallbacks remain defined", async () => {
-  const css = await readFile(
-    new URL("../app/friendly.css", import.meta.url),
-    "utf8",
-  );
+  const [css, generativeSource] = await Promise.all([
+    readFile(new URL("../app/friendly.css", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/GenerativeBackground.tsx", import.meta.url),
+      "utf8",
+    ),
+  ]);
   assert.match(css, /@media \(max-width: 720px\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /--paper: #fbfbf8/);
-  assert.match(css, /--field-accent: #d84a24/);
-  assert.match(css, /--field-warm: #b77900/);
+  assert.match(css, /--field-accent: #e11d48/);
+  assert.match(css, /--field-warm: #ff4d6d/);
+  assert.match(css, /--accent: #22d3ee/);
+  assert.match(css, /--field-warm: #06b6d4/);
+  assert.match(
+    css,
+    /:root\[data-theme="dark"\]\s*\{[^}]*--ink: #ffffff;[^}]*--muted: #ffffff;[^}]*--copy: #ffffff;/,
+  );
   assert.match(css, /:root\[data-theme="dark"\]/);
   assert.match(
     css,
@@ -103,4 +117,5 @@ test("responsive and reduced-motion fallbacks remain defined", async () => {
   assert.match(css, /\.generative-stage\s*\{[^}]*border-block: 1px solid var\(--ink\);/);
   assert.match(css, /\.generative-canvas\s*\{\s*display: none;/);
   assert.match(css, /\.generative-fallback\s*\{\s*z-index: 0;/);
+  assert.doesNotMatch(generativeSource, /venation/i);
 });
