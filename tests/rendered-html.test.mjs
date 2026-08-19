@@ -29,7 +29,8 @@ test("server-renders the finished home page", async () => {
   assert.match(html, /Four ways in/);
   assert.doesNotMatch(html, /15K\+ YouTube subscribers/);
   assert.doesNotMatch(html, /Choose a system|Configure \+|Auto on/);
-  assert.match(html, /Switch to dark theme/);
+  assert.match(html, /data-theme="dark"/);
+  assert.match(html, /Switch to light theme/);
   assert.match(html, /aria-label="Parametric home"/);
   assert.match(html, /generative-stage/);
   assert.doesNotMatch(html, /generative-control-dock/);

@@ -23,7 +23,7 @@ const subscribe = (onStoreChange: () => void) => {
 const getTheme = (): Theme =>
   document.documentElement.dataset.theme === "dark" ? "dark" : "light";
 
-const getServerTheme = (): Theme => "light";
+const getServerTheme = (): Theme => "dark";
 
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribe, getTheme, getServerTheme);
