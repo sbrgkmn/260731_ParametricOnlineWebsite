@@ -73,7 +73,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              'try{var theme=localStorage.getItem("parametric-theme");if(theme==="dark"||theme==="light"){document.documentElement.dataset.theme=theme}}catch(error){}',
+              'try{var theme=localStorage.getItem("parametric-theme-v2");if(theme==="dark"||theme==="light"){document.documentElement.dataset.theme=theme}}catch(error){}',
           }}
         />
       </head>

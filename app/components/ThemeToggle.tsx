@@ -7,7 +7,7 @@ type Theme = "light" | "dark";
 const applyTheme = (theme: Theme) => {
   document.documentElement.dataset.theme = theme;
   try {
-    window.localStorage.setItem("parametric-theme", theme);
+    window.localStorage.setItem("parametric-theme-v2", theme);
   } catch {
     // The visible theme still works when storage is unavailable.
   }
