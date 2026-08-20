@@ -27,6 +27,7 @@ jobs:
       - run: npm run export:pages
         env:
           NEXT_PUBLIC_SITE_URL: https://parametric.online
+          NEXT_PUBLIC_BOOKING_URL: https://calendar.app.google/iT2jzgfTufTrSp19A
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

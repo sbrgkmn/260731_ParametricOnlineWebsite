@@ -23,7 +23,7 @@ export const siteConfig = {
 
 export const navItems = [
   { href: siteConfig.youtubeUrl, label: "Learn", external: true },
-  { href: "/scripts", label: "Starter Kits", external: false },
+  { href: "/scripts", label: "Marketplace", external: false },
   {
     href: siteConfig.discordUrl,
     label: "Community",

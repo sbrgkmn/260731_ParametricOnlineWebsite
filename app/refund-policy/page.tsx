@@ -12,17 +12,17 @@ export default function RefundPolicyPage() {
         <p className="eyebrow">Site information</p>
         <h1>Refund policy</h1>
         <p>
-          Parametric Online does not currently sell products or collect payments
-          on this website. The listed workflow downloads are free resources
-          hosted on Google Drive.
+          The currently available workflow downloads are free resources hosted
+          on Google Drive. Paid digital packages shown on the site are previews
+          and cannot yet be purchased.
         </p>
         <h2>Expert help</h2>
         <p>
-          No booking or payment destination is currently active. Any future paid
-          engagement will present its own scope, price, cancellation, and refund
-          terms before confirmation.
+          Paid working sessions are booked and processed by the provider linked
+          from the booking page. The applicable cancellation and refund terms
+          are displayed before the booking is confirmed.
         </p>
-        <p className="policy-date">Updated: August 1, 2026</p>
+        <p className="policy-date">Updated: August 19, 2026</p>
       </section>
     </main>
   );

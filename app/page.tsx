@@ -16,9 +16,9 @@ const homeActions = [
     external: true,
   },
   {
-    label: "Starter Kits",
-    title: "Download working files",
-    description: "Scripts, definitions, and starter packages for rebuilding.",
+    label: "Marketplace",
+    title: "Browse downloadable content",
+    description: "Grasshopper, scripting, and generative AI working files.",
     href: "/scripts",
     external: false,
   },
@@ -85,7 +85,7 @@ export default function Home() {
                   Learn on YouTube ↗
                 </a>
                 <Link className="button button-secondary" href="/scripts">
-                  Browse Starter Kits
+                  Browse Marketplace
                 </Link>
               </div>
             </div>

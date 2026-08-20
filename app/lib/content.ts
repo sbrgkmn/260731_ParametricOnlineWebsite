@@ -45,6 +45,18 @@ export type ScriptProduct = {
   tutorialUrl: string;
 };
 
+export type MarketplaceProduct = {
+  id: string;
+  title: string;
+  summary: string;
+  category: "Grasshopper" | "Scripting" | "Generative AI / ComfyUI";
+  access: "Free" | `$${number}`;
+  status: "available" | "coming-soon";
+  imageUrl: string;
+  imageAlt: string;
+  downloadUrl?: string;
+};
+
 export const workflowStreams: WorkflowStream[] = [
   {
     slug: "parametric-design",
@@ -396,6 +408,100 @@ export const scriptProducts: ScriptProduct[] = [
     downloadUrl:
       "https://drive.google.com/file/d/1ytEdhBj6iZOqpJ__PviQWZu-TKr0LB-6/view?usp=sharing",
     tutorialUrl: youtube("P9TJo3OtW-c"),
+  },
+];
+
+export const marketplaceProducts: MarketplaceProduct[] = [
+  {
+    id: "comfyui-introduction-workflow",
+    title: "Introduction to ComfyUI Workflow",
+    summary: "The node workflow used in the introductory ComfyUI tutorial.",
+    category: "Generative AI / ComfyUI",
+    access: "Free",
+    status: "available",
+    imageUrl: "/marketplace/comfyui-introduction.webp",
+    imageAlt: "Abstract white node icon emerging from a purple field",
+    downloadUrl:
+      "https://drive.google.com/file/d/1Ce8qloTW5g9Ls-fP8eegVDsAm2gnWAg9/view?usp=drive_link",
+  },
+  {
+    id: "ai-mesh-generation-workflow",
+    title: "AI Mesh Generation Workflow",
+    summary:
+      "A ComfyUI pipeline from generated images and keyframes to a reconstructed 3D mesh.",
+    category: "Generative AI / ComfyUI",
+    access: "Free",
+    status: "available",
+    imageUrl: "/marketplace/ai-mesh-generation.webp",
+    imageAlt: "A curved surface transforming from solid geometry into points and mesh",
+    downloadUrl:
+      "https://drive.google.com/file/d/1ytEdhBj6iZOqpJ__PviQWZu-TKr0LB-6/view?usp=sharing",
+  },
+  {
+    id: "comfyui-starter-kit",
+    title: "ComfyUI Starter Kit",
+    access: "$9",
+    summary:
+      "Introductory workflow, installation guide, dependencies, and example settings.",
+    category: "Generative AI / ComfyUI",
+    status: "coming-soon",
+    imageUrl: "/marketplace/comfyui-starter.webp",
+    imageAlt: "A luminous white sphere floating above a purple surface",
+  },
+  {
+    id: "comfyui-design-workflow-pack",
+    title: "ComfyUI Design Workflow Pack",
+    access: "$19",
+    summary:
+      "Architectural image, controlled variation, and AI mesh-generation workflows.",
+    category: "Generative AI / ComfyUI",
+    status: "coming-soon",
+    imageUrl: "/marketplace/comfyui-design-pack.webp",
+    imageAlt: "An architectural corner illuminated with cyan and magenta light",
+  },
+  {
+    id: "grasshopper-starter-kit",
+    title: "Grasshopper Starter Kit",
+    access: "$15",
+    summary:
+      "Foundational definitions for patterns, panels, mapping, and basic parametric systems.",
+    category: "Grasshopper",
+    status: "coming-soon",
+    imageUrl: "/marketplace/grasshopper-starter.webp",
+    imageAlt: "A parametric folded surface defined by a grid and control points",
+  },
+  {
+    id: "grasshopper-design-library",
+    title: "Grasshopper Design Library",
+    access: "$29",
+    summary:
+      "Complete collection of façade, structure, form-generation, and fabrication definitions.",
+    category: "Grasshopper",
+    status: "coming-soon",
+    imageUrl: "/marketplace/grasshopper-library.webp",
+    imageAlt: "A complex panelized architectural surface with varied structural systems",
+  },
+  {
+    id: "creative-scripting-starter-files",
+    title: "Creative Scripting Starter Files",
+    access: "Free",
+    summary:
+      "Small Python and cellular-system examples for learning code-led design logic.",
+    category: "Scripting",
+    status: "coming-soon",
+    imageUrl: "/marketplace/creative-scripting.webp",
+    imageAlt: "A recursive branching system with orange terminal points",
+  },
+  {
+    id: "grasshopper-python-script-pack",
+    title: "Grasshopper Python Script Pack",
+    access: "$19",
+    summary:
+      "Reusable scripts for geometry processing, data organization, and workflow automation.",
+    category: "Scripting",
+    status: "coming-soon",
+    imageUrl: "/marketplace/grasshopper-python.webp",
+    imageAlt: "A scripted grid of square frames forming a vortex pattern",
   },
 ];
 

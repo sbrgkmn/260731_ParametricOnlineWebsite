@@ -605,6 +605,192 @@ button {
 .script-card a:hover .script-card-footer strong {
   color: var(--accent);
 }
+.marketplace-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+.marketplace-segments button {
+  min-height: 42px;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: 0.72rem var(--font-geist-mono), monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.marketplace-segments button:hover,
+.marketplace-segments button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.free-access {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: end;
+  margin-bottom: 2rem;
+  padding: clamp(2rem, 5vw, 4rem);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+.free-access h2 {
+  margin: 0.7rem 0 1rem;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+.free-access p:not(.eyebrow) {
+  max-width: 620px;
+  color: var(--copy);
+}
+.access-form label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font: 0.72rem var(--font-geist-mono), monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.access-form > div {
+  display: flex;
+}
+.access-form input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid var(--ink);
+  border-right: 0;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0 1rem;
+}
+.access-form .button {
+  white-space: nowrap;
+}
+.access-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.25rem;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+.access-confirmation span {
+  color: var(--copy);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+}
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+.marketplace-hero-visual {
+  margin-bottom: clamp(2rem, 5vw, 5rem);
+}
+.marketplace-hero-visual img {
+  display: block;
+  width: 100%;
+  max-height: 680px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+.marketplace-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+.marketplace-card-visual {
+  position: relative;
+  min-height: 190px;
+  aspect-ratio: 4 / 3;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.marketplace-card-visual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.marketplace-card-visual span {
+  position: relative;
+  z-index: 1;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: rgb(10 18 21 / 78%);
+  color: #fff;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+}
+.marketplace-card-visual strong {
+  position: relative;
+  z-index: 1;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: rgb(10 18 21 / 78%);
+  color: #fff;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.marketplace-card-copy {
+  padding: 1.25rem;
+}
+.marketplace-card h2 {
+  margin: 1rem 0 0.7rem;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+.marketplace-card p {
+  min-height: 3.2em;
+  color: var(--copy);
+}
+.marketplace-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.marketplace-card-action > strong {
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+.marketplace-card-action > span {
+  color: var(--copy);
+  font: 0.72rem var(--font-geist-mono), monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .free-access,
+  .marketplace-grid {
+    grid-template-columns: 1fr;
+  }
+  .access-form > div {
+    flex-direction: column;
+  }
+  .access-form input {
+    min-height: 48px;
+    border-right: 1px solid var(--ink);
+    border-bottom: 0;
+  }
+}
 
 .support-band {
   border-block: 1px solid var(--line);
@@ -868,6 +1054,25 @@ button {
 .help-grid article > p:not(.eyebrow) {
   color: var(--copy);
   font-size: 1.08rem;
+}
+.help-grid .booking-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin: 0.5rem 0 1.5rem;
+  color: var(--ink);
+}
+.booking-price strong {
+  color: var(--accent);
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+}
+.booking-price span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 .inquiry-layout {
   display: grid;

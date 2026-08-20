@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { ProductCard } from "../components/ProductCard";
-import { scriptProducts } from "../lib/content";
+import { Marketplace } from "../components/Marketplace";
+import { marketplaceProducts } from "../lib/content";
 import { siteConfig } from "../lib/site";
 
 export const metadata: Metadata = {
-  title: "Starter Kits and Working Files",
+  title: "Marketplace",
   description:
-    "Verified downloadable scripts and workflow files connected to Parametric Online tutorials.",
+    "Download Grasshopper, scripting, and generative AI resources from Parametric Online.",
   alternates: { canonical: "/scripts" },
 };
 
@@ -14,25 +14,26 @@ export default function ScriptsPage() {
   return (
     <main>
       <section className="page-hero shell">
-        <p className="eyebrow">Starter Kits / Working files</p>
-        <h1>Start from a working package.</h1>
+        <p className="eyebrow">Marketplace / Downloadable content</p>
+        <h1>One library for computational design.</h1>
         <p>
-          Download the definitions, scripts, and workflow files used in the
-          tutorials.
+          Browse Grasshopper definitions, scripts, and generative AI workflows.
+          Start free, then move into larger working collections.
         </p>
       </section>
 
+      <div className="marketplace-hero-visual shell">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt="A white architectural form dissolving into digital particles"
+          height="900"
+          src="/marketplace/marketplace-hero.webp"
+          width="1200"
+        />
+      </div>
+
       <section className="section shell">
-        <div className="library-key" aria-label="Supported script types">
-          <span>Foundational files</span>
-          <span>Tutorial scripts</span>
-          <span>Workflow kits</span>
-        </div>
-        <div className="script-grid">
-          {scriptProducts.map((product) => (
-            <ProductCard product={product} key={product.id} />
-          ))}
-        </div>
+        <Marketplace products={marketplaceProducts} />
       </section>
 
       {siteConfig.supportUrl && (

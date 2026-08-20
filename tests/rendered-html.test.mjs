@@ -23,7 +23,7 @@ test("server-renders the finished home page", async () => {
   const html = await response.text();
   assert.match(html, /Learn computational design by building/);
   assert.match(html, /Learn on YouTube/);
-  assert.match(html, /Starter Kits/);
+  assert.match(html, /Marketplace/);
   assert.match(html, /Work Together/);
   assert.match(html, /https:\/\/discord\.gg\/XdKRyBajp/);
   assert.match(html, /Four ways in/);
@@ -52,13 +52,32 @@ test("server-renders four curated learning streams", async () => {
   assert.match(html, /Unrolling Parts/);
 });
 
-test("server-renders only verified downloads", async () => {
+test("server-renders the segmented marketplace", async () => {
   const response = await render("/scripts");
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Introduction to ComfyUI Workflow/);
   assert.match(html, /AI Mesh Generation Workflow/);
   assert.match(html, /drive\.google\.com/);
+  assert.match(html, /Marketplace categories/);
+  assert.match(html, /Grasshopper/);
+  assert.match(html, /Scripting/);
+  assert.match(html, /Generative AI \/ ComfyUI/);
+  assert.match(html, /Enter your email once/);
+  assert.match(html, /ComfyUI Starter Kit/);
+  assert.match(html, /ComfyUI Design Workflow Pack/);
+  assert.match(html, /Grasshopper Starter Kit/);
+  assert.match(html, /Grasshopper Design Library/);
+  assert.match(html, /\$9/);
+  assert.match(html, /\$19/);
+  assert.match(html, /\$15/);
+  assert.match(html, /\$29/);
+  assert.match(html, /Creative Scripting Starter Files/);
+  assert.match(html, /Grasshopper Python Script Pack/);
+  assert.match(html, /Coming soon/);
+  assert.match(html, /marketplace\/marketplace-hero\.webp/);
+  assert.match(html, /marketplace\/comfyui-introduction\.webp/);
+  assert.match(html, /marketplace\/grasshopper-library\.webp/);
   assert.doesNotMatch(html, /Lemon Squeezy|Buy now/);
 });
 
@@ -71,7 +90,7 @@ test("server-renders a tutorial detail page with privacy-enhanced video", async 
   assert.match(html, /Watch Free/);
 });
 
-test("community links to Discord while booking destinations stay disabled", async () => {
+test("community and expert-help destinations reflect their configuration", async () => {
   const [communityResponse, expertResponse] = await Promise.all([
     render("/community"),
     render("/expert-help"),
@@ -82,10 +101,20 @@ test("community links to Discord while booking destinations stay disabled", asyn
   ]);
   assert.match(communityHtml, /Join the discussion on Discord/);
   assert.match(communityHtml, /https:\/\/discord\.gg\/XdKRyBajp/);
-  assert.match(expertHtml, /Booking link unavailable/);
+  if (expertHtml.includes("Book a Working Session")) {
+    assert.match(expertHtml, /Book a Working Session/);
+    assert.match(
+      expertHtml,
+      /https:\/\/calendar\.app\.google\/iT2jzgfTufTrSp19A/,
+    );
+    assert.doesNotMatch(expertHtml, /Booking link unavailable/);
+  } else {
+    assert.match(expertHtml, /Booking link unavailable/);
+  }
   assert.match(expertHtml, /Inquiry submission is currently unavailable/);
-  assert.doesNotMatch(expertHtml, /calendly\.com/);
   assert.match(expertHtml, /Bring a Grasshopper definition/);
+  assert.match(expertHtml, /\$49/);
+  assert.match(expertHtml, /60 minutes/);
   assert.doesNotMatch(expertHtml, /Share context before the call/);
   assert.doesNotMatch(expertHtml, /Work directly on the difficult part/);
   assert.doesNotMatch(expertHtml, /Leave with a clear next step/);

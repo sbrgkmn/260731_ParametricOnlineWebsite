@@ -25,6 +25,10 @@ export default function ExpertHelpPage() {
         <article id="working-session">
           <p className="eyebrow">01 / Individual</p>
           <h2>1:1 Working Session</h2>
+          <p className="booking-price">
+            <strong>$49</strong>
+            <span>/ 60 minutes</span>
+          </p>
           <p>
             Bring a Grasshopper definition, ComfyUI workflow, scripting problem,
             or fabrication question. The session stays fixed in scope and
@@ -37,7 +41,7 @@ export default function ExpertHelpPage() {
               target="_blank"
               rel="noreferrer"
             >
-              Book a Working Session ↗
+              Book a Working Session — $49 ↗
             </a>
           ) : (
             <span className="button button-disabled" aria-disabled="true">
