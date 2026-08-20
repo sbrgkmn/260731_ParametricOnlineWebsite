@@ -22,16 +22,6 @@ export default function ScriptsPage() {
         </p>
       </section>
 
-      <div className="marketplace-hero-visual shell">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          alt="A white architectural form dissolving into digital particles"
-          height="900"
-          src="/marketplace/marketplace-hero.webp"
-          width="1200"
-        />
-      </div>
-
       <section className="section shell">
         <Marketplace products={marketplaceProducts} />
       </section>

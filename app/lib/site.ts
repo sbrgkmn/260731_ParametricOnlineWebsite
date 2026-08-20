@@ -15,7 +15,9 @@ export const siteConfig = {
     process.env.NEXT_PUBLIC_PORTFOLIO_URL ?? "https://www.sabrigokmen.com",
   discordUrl:
     process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.gg/XdKRyBajp",
-  bookingUrl: optionalUrl(process.env.NEXT_PUBLIC_BOOKING_URL),
+  bookingUrl:
+    optionalUrl(process.env.NEXT_PUBLIC_BOOKING_URL) ??
+    "https://calendar.app.google/9GrNWLWSBdhA7QSC7",
   consultancyUrl: optionalUrl(process.env.NEXT_PUBLIC_CONSULTANCY_URL),
   supportUrl: optionalUrl(process.env.NEXT_PUBLIC_SUPPORT_URL),
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null,

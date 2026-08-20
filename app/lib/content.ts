@@ -55,6 +55,7 @@ export type MarketplaceProduct = {
   imageUrl: string;
   imageAlt: string;
   downloadUrl?: string;
+  checkoutUrl?: string;
 };
 
 export const workflowStreams: WorkflowStream[] = [
@@ -413,29 +414,17 @@ export const scriptProducts: ScriptProduct[] = [
 
 export const marketplaceProducts: MarketplaceProduct[] = [
   {
-    id: "comfyui-introduction-workflow",
-    title: "Introduction to ComfyUI Workflow",
-    summary: "The node workflow used in the introductory ComfyUI tutorial.",
-    category: "Generative AI / ComfyUI",
+    id: "comfyui-free-sample",
+    title: "ComfyUI Free Sample",
     access: "Free",
+    summary:
+      "A ready-to-open ComfyUI workflow for exploring an architectural image-generation setup.",
+    category: "Generative AI / ComfyUI",
     status: "available",
-    imageUrl: "/marketplace/comfyui-introduction.webp",
-    imageAlt: "Abstract white node icon emerging from a purple field",
+    imageUrl: "/marketplace/comfyui-free-sample.png",
+    imageAlt: "Sculptural white building with rounded openings on a city corner",
     downloadUrl:
       "https://drive.google.com/file/d/1Ce8qloTW5g9Ls-fP8eegVDsAm2gnWAg9/view?usp=drive_link",
-  },
-  {
-    id: "ai-mesh-generation-workflow",
-    title: "AI Mesh Generation Workflow",
-    summary:
-      "A ComfyUI pipeline from generated images and keyframes to a reconstructed 3D mesh.",
-    category: "Generative AI / ComfyUI",
-    access: "Free",
-    status: "available",
-    imageUrl: "/marketplace/ai-mesh-generation.webp",
-    imageAlt: "A curved surface transforming from solid geometry into points and mesh",
-    downloadUrl:
-      "https://drive.google.com/file/d/1ytEdhBj6iZOqpJ__PviQWZu-TKr0LB-6/view?usp=sharing",
   },
   {
     id: "comfyui-starter-kit",
@@ -445,19 +434,30 @@ export const marketplaceProducts: MarketplaceProduct[] = [
       "Introductory workflow, installation guide, dependencies, and example settings.",
     category: "Generative AI / ComfyUI",
     status: "coming-soon",
-    imageUrl: "/marketplace/comfyui-starter.webp",
-    imageAlt: "A luminous white sphere floating above a purple surface",
+    imageUrl: "/marketplace/comfyui-starter-kit.png",
+    imageAlt: "Curved contemporary facade with warm lighting on a rainy plaza",
   },
   {
     id: "comfyui-design-workflow-pack",
-    title: "ComfyUI Design Workflow Pack",
+    title: "ComfyUI Design Workflow",
     access: "$19",
     summary:
       "Architectural image, controlled variation, and AI mesh-generation workflows.",
     category: "Generative AI / ComfyUI",
     status: "coming-soon",
-    imageUrl: "/marketplace/comfyui-design-pack.webp",
-    imageAlt: "An architectural corner illuminated with cyan and magenta light",
+    imageUrl: "/marketplace/comfyui-design-workflow.png",
+    imageAlt: "Architectural tower transitioning from line drawing to rendered design",
+  },
+  {
+    id: "grasshopper-free-sample",
+    title: "Grasshopper Free Sample",
+    access: "Free",
+    summary:
+      "A starter Grasshopper definition for exploring responsive facade patterns and parameter-driven variation.",
+    category: "Grasshopper",
+    status: "coming-soon",
+    imageUrl: "/marketplace/grasshopper-free-sample.png",
+    imageAlt: "White parametric facade with a gradient of rounded window openings",
   },
   {
     id: "grasshopper-starter-kit",
@@ -466,9 +466,12 @@ export const marketplaceProducts: MarketplaceProduct[] = [
     summary:
       "Foundational definitions for patterns, panels, mapping, and basic parametric systems.",
     category: "Grasshopper",
-    status: "coming-soon",
-    imageUrl: "/marketplace/grasshopper-starter.webp",
-    imageAlt: "A parametric folded surface defined by a grid and control points",
+    status: "available",
+    imageUrl: "/marketplace/grasshopper-starter-kit.png",
+    imageAlt: "Flowing parametric facade with warm illuminated openings",
+    checkoutUrl:
+      process.env.NEXT_PUBLIC_GRASSHOPPER_STARTER_CHECKOUT_URL?.trim() ||
+      "/api/checkout/grasshopper-starter-kit",
   },
   {
     id: "grasshopper-design-library",
@@ -478,30 +481,30 @@ export const marketplaceProducts: MarketplaceProduct[] = [
       "Complete collection of façade, structure, form-generation, and fabrication definitions.",
     category: "Grasshopper",
     status: "coming-soon",
-    imageUrl: "/marketplace/grasshopper-library.webp",
-    imageAlt: "A complex panelized architectural surface with varied structural systems",
+    imageUrl: "/marketplace/grasshopper-design-library.png",
+    imageAlt: "Parametric lattice structure surrounding a glazed atrium",
   },
   {
-    id: "creative-scripting-starter-files",
-    title: "Creative Scripting Starter Files",
-    access: "Free",
+    id: "scripting-library",
+    title: "Scripting Library",
+    access: "$29",
     summary:
-      "Small Python and cellular-system examples for learning code-led design logic.",
+      "A complete collection of reusable Python systems for geometry, iteration, data processing, and workflow automation.",
     category: "Scripting",
     status: "coming-soon",
-    imageUrl: "/marketplace/creative-scripting.webp",
-    imageAlt: "A recursive branching system with orange terminal points",
+    imageUrl: "/marketplace/scripting-library.png",
+    imageAlt: "Perforated branching columns forming a luminous computational interior",
   },
   {
-    id: "grasshopper-python-script-pack",
-    title: "Grasshopper Python Script Pack",
-    access: "$19",
+    id: "scripting-starter-kit",
+    title: "Scripting Starter Kit",
+    access: "$15",
     summary:
-      "Reusable scripts for geometry processing, data organization, and workflow automation.",
+      "Foundational Python examples for geometry generation, iterative systems, and computational design workflows.",
     category: "Scripting",
     status: "coming-soon",
-    imageUrl: "/marketplace/grasshopper-python.webp",
-    imageAlt: "A scripted grid of square frames forming a vortex pattern",
+    imageUrl: "/marketplace/scripting-starter-kit.png",
+    imageAlt: "Close-up of a smooth white cellular structure with branching openings",
   },
 ];
 

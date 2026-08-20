@@ -56,29 +56,41 @@ test("server-renders the segmented marketplace", async () => {
   const response = await render("/scripts");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /Introduction to ComfyUI Workflow/);
-  assert.match(html, /AI Mesh Generation Workflow/);
-  assert.match(html, /drive\.google\.com/);
   assert.match(html, /Marketplace categories/);
   assert.match(html, /Grasshopper/);
   assert.match(html, /Scripting/);
   assert.match(html, /Generative AI \/ ComfyUI/);
-  assert.match(html, /Enter your email once/);
+  assert.match(html, /ComfyUI Free Sample/);
   assert.match(html, /ComfyUI Starter Kit/);
-  assert.match(html, /ComfyUI Design Workflow Pack/);
+  assert.match(html, /ComfyUI Design Workflow/);
+  assert.match(html, /Grasshopper Free Sample/);
   assert.match(html, /Grasshopper Starter Kit/);
   assert.match(html, /Grasshopper Design Library/);
+  assert.match(html, /Scripting Library/);
+  assert.match(html, /Scripting Starter Kit/);
   assert.match(html, /\$9/);
   assert.match(html, /\$19/);
   assert.match(html, /\$15/);
   assert.match(html, /\$29/);
-  assert.match(html, /Creative Scripting Starter Files/);
-  assert.match(html, /Grasshopper Python Script Pack/);
   assert.match(html, /Coming soon/);
-  assert.match(html, /marketplace\/marketplace-hero\.webp/);
-  assert.match(html, /marketplace\/comfyui-introduction\.webp/);
-  assert.match(html, /marketplace\/grasshopper-library\.webp/);
-  assert.doesNotMatch(html, /Lemon Squeezy|Buy now/);
+  assert.match(html, /Enter your email once/);
+  assert.match(html, /drive\.google\.com/);
+  assert.doesNotMatch(html, /marketplace\/marketplace-hero\.webp/);
+  assert.match(html, /marketplace\/comfyui-free-sample\.png/);
+  assert.match(html, /marketplace\/grasshopper-free-sample\.png/);
+  assert.match(html, /marketplace\/scripting-library\.png/);
+  assert.match(html, /marketplace\/scripting-starter-kit\.png/);
+  assert.match(html, /marketplace\/comfyui-design-workflow\.png/);
+  assert.match(html, /marketplace\/grasshopper-design-library\.png/);
+  assert.match(html, /marketplace\/grasshopper-starter-kit\.png/);
+  assert.match(html, /marketplace\/comfyui-starter-kit\.png/);
+  assert.doesNotMatch(html, /Introduction to ComfyUI Workflow/);
+  assert.doesNotMatch(html, /AI Mesh Generation Workflow/);
+  assert.doesNotMatch(html, /Creative Scripting Starter Files/);
+  assert.doesNotMatch(html, /Grasshopper Python Script Pack/);
+  assert.match(html, /api\/checkout\/grasshopper-starter-kit/);
+  assert.match(html, /Buy now/);
+  assert.doesNotMatch(html, /Lemon Squeezy/);
 });
 
 test("server-renders a tutorial detail page with privacy-enhanced video", async () => {
@@ -105,7 +117,7 @@ test("community and expert-help destinations reflect their configuration", async
     assert.match(expertHtml, /Book a Working Session/);
     assert.match(
       expertHtml,
-      /https:\/\/calendar\.app\.google\/iT2jzgfTufTrSp19A/,
+      /https:\/\/calendar\.app\.google\/9GrNWLWSBdhA7QSC7/,
     );
     assert.doesNotMatch(expertHtml, /Booking link unavailable/);
   } else {
